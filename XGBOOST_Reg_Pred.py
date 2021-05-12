@@ -34,6 +34,7 @@ import pandas_datareader as web
 from warnings import simplefilter
 simplefilter(action='ignore', category=FutureWarning)
 simplefilter(action='ignore', category=DeprecationWarning)
+simplefilter(action='ignore', category=UserWarning)
 
 # Show charts when running kernel
 #init_notebook_mode(connected=True)
@@ -104,9 +105,15 @@ if(ORIGIN_CODE == True):
     fig.update(layout_xaxis_rangeslider_visible=False)
     fig.show()
 else:
-    df.index = df['Date']
+    fig = plt.figure()
+    fig.set_size_inches(20, 8)
+
+    plt.title('Close')
+
+    plt.plot(df.Date, df.Close, linewidth=0.5)
+
     filename = OUT_DIR + ETF_NAME + "_1.png"
-    mpf.plot(df, type='candle', volume=True, style='yahoo', savefig=filename)
+    plt.savefig(filename, dpi=500)
 
     df.index = range(len(df))
 
@@ -230,7 +237,7 @@ else:
     plt.plot(df.Date, df.Close, linewidth=0.5)
     plt.plot(df.Date, EMA_12, linewidth=0.5)
     plt.plot(df.Date, EMA_26, linewidth=0.5)
-    plt.savefig('./out/test_5.png', dpi=500)
+    filename = OUT_DIR + ETF_NAME + "_5.png"
 
     fig = plt.figure()
     fig.set_size_inches(20, 8)
@@ -238,7 +245,7 @@ else:
     plt.plot(df.Date, df['MACD'], linewidth=0.5)
     plt.plot(df.Date, df['MACD_signal'], linewidth=0.5)
 
-    filename = OUT_DIR + ETF_NAME + "_5.png"
+    filename = OUT_DIR + ETF_NAME + "_6.png"
     plt.savefig(filename, dpi=500)
 
 
@@ -299,7 +306,7 @@ else:
     plt.plot(valid_df.Date, valid_df.Close, linewidth=0.5)
     plt.plot(test_df.Date, test_df.Close, linewidth=0.5)
 
-    filename = OUT_DIR + ETF_NAME + "_6.png"
+    filename = OUT_DIR + ETF_NAME + "_7.png"
     plt.savefig(filename, dpi=500)
 
 # %% [markdown]
@@ -346,7 +353,7 @@ parameters = {
 
 eval_set = [(X_train, y_train), (X_valid, y_valid)]
 #model = xgb.XGBRegressor(eval_set=eval_set, objective='reg:squarederror', verbose=False)
-model = xgb.XGBRegressor(objective='reg:squarederror', verbosity=0)
+model = xgb.XGBRegressor(objective='reg:squarederror', verbosity=0,silent=True)
 clf = GridSearchCV(model, parameters)
 
 clf.fit(X_train, y_train)
@@ -414,7 +421,7 @@ else:
     plt.plot(df.Date, df.Close, linewidth=0.5)
     plt.plot(predicted_prices.Date, predicted_prices.Close, linewidth=0.5)
 
-    filename = OUT_DIR + ETF_NAME + "_7.png"
+    filename = OUT_DIR + ETF_NAME + "_9.png"
     plt.savefig(filename, dpi=500)
 
     fig = plt.figure()
