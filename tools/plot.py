@@ -102,6 +102,78 @@ def plot_preds_before_tuning(train, val, test, train_val, H,preds_dict, tic, OUT
     plt.close('all')
 
 
+def plot_preds_before_tuning_one_pred(train, val, test, est, H, tic, OUT_DIR):
+    fig = plt.figure()
+    fig.set_size_inches(20, 8)
+
+    plt.plot(train['date'], train['adj_close'], linewidth=0.5)
+    plt.plot(val['date'], val['adj_close'], linewidth=0.5)
+    plt.plot(test['date'], test['adj_close'], linewidth=0.5)
+    plt.plot(test[:H]['date'], est, linewidth=0.5)
+
+    plt.grid(True)
+    filename = OUT_DIR + tic + "_prds_b_tuning_onepred.png"
+    plt.savefig(filename, dpi=500)
+    plt.close('all')
+
+    fig = plt.figure()
+    fig.set_size_inches(20, 8)
+
+    plt.plot(test['date'], test['adj_close'], linewidth=0.5)
+    plt.plot(test[:H]['date'], est, linewidth=0.5)
+
+    plt.grid(True)
+    filename = OUT_DIR + tic + "_prds_b_tuning_onepred_zoom.png"
+    plt.savefig(filename, dpi=500)
+    plt.close('all')
+
+
+
+def plot_importance_features_no_tuning(imp, tic, OUT_DIR):
+    fig = plt.figure()
+    fig.set_size_inches(20, 8)
+
+    x_val = [x[0] for x in imp]
+    y_val = [x[1] for x in imp]
+    plt.barh(x_val, y_val)
+
+    plt.grid(True)
+    filename = OUT_DIR + tic + "_feature_importance_no_tuning.png"
+    plt.savefig(filename, dpi=500)
+    plt.close('all')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

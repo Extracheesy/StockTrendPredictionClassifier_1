@@ -19,6 +19,7 @@ from tools import filter_df_date_year
 from tools import format_df
 from corr import get_corr_matrix
 from predict import predict_df_before_tuning
+from predict import predict_df_before_tuning_one_pred
 
 # Mute sklearn warnings
 from warnings import simplefilter
@@ -72,6 +73,9 @@ for tic in LIST_TICKER_DJI['Symbol']:
 
     if (config.PREDICT_BEFORE_TUNING == True):
         predict_df_before_tuning(df, tic, OUT_DIR)
+
+    if (config.PREDICT_BEFORE_TUNING_ONE_PRED == True):
+        predict_df_before_tuning_one_pred(df, tic, OUT_DIR)
 
 
 
