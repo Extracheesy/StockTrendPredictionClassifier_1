@@ -16,6 +16,8 @@ STOCKS_DJI_DIRECTORY = './Data/Stocks_dji/'
 READ_DATA_FILE = True
 #READ_DATA_FILE = False
 
+MODE_DEBUG = True
+
 ADD_INDICATORS = True
 PLOT_PRICE = False
 #PLOT_PRICE = True

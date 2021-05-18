@@ -194,10 +194,6 @@ def get_error_metrics(df,
     for n in range(N, 0, -1):
         features.append("adj_close_scaled_lag_" + str(n))
 
-    toto = train_size
-    titi = len(df) - H + 1
-    tutu = int(H / 2)
-
     for i in range(train_size, len(df) - H + 1, int(H / 2)):
         # Split into train and test
         train = df[i - train_size:i].copy()

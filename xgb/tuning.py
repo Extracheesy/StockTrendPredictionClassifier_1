@@ -10,14 +10,18 @@ from init import init_opt_param
 def tuning_param(df, tic, OUT_DIR):
 
     init_opt_param()
+
     n_estimators_opt_param, max_depth_opt_param = get_opt_param_n_estimators_max_depth(df, tic, OUT_DIR)
-    df = pd.DataFrame(list(zip(n_estimators_opt_param, max_depth_opt_param)), columns =['n_estimators', 'max_depth'])
+    df_param = pd.DataFrame(list(zip(n_estimators_opt_param, max_depth_opt_param)), columns =['n_estimators', 'max_depth'])
+
     learning_rate_opt_param, min_child_weight_opt_param = get_opt_param_learning_rate_min_child_weight(df, tic, OUT_DIR)
-    df.append(pd.DataFrame(list(zip(learning_rate_opt_param, min_child_weight_opt_param)), columns=['learning_rate', 'min_child_weight']))
+    df_param.append(pd.DataFrame(list(zip(learning_rate_opt_param, min_child_weight_opt_param)), columns=['learning_rate', 'min_child_weight']))
+
     subsample_opt_param, gamma_opt_param = get_opt_param_subsample_gamma(df, tic, OUT_DIR)
-    df.append(pd.DataFrame(list(zip(subsample_opt_param, gamma_opt_param)), columns=['subsample', 'gamma']))
+    df_param.append(pd.DataFrame(list(zip(subsample_opt_param, gamma_opt_param)), columns=['subsample', 'gamma']))
+
     colsample_bytree_opt_param, colsample_bylevel_opt_param = get_opt_param_colsample_bytree_colsample_bylevel(df, tic, OUT_DIR)
-    df.append(pd.DataFrame(list(zip(colsample_bytree_opt_param, colsample_bylevel_opt_param)), columns=['colsample_bytree', 'colsample_bylevel']))
+    df_param.append(pd.DataFrame(list(zip(colsample_bytree_opt_param, colsample_bylevel_opt_param)), columns=['colsample_bytree', 'colsample_bylevel']))
 
     filename = OUT_DIR + tic + "_opt_param.csv"
     df.to_csv(filename)
@@ -33,11 +37,19 @@ def get_opt_param_n_estimators_max_depth(df, tic, OUT_DIR):
         train_val = df[pred_day - config.TRAIN_VAL_SIZE:pred_day].copy()
         test = df[pred_day:pred_day + config.H].copy()
 
-        param_label = 'n_estimators'
-        param_list = range(30, 61, 1)
+        if(config.MODE_DEBUG == True):
+            param_label = 'n_estimators'
+            param_list = [100]
+    
+            param2_label = 'max_depth'
+            param2_list = [3]
+        else:
+            param_label = 'n_estimators'
+            # param_list = range(30, 61, 1)
+            param_list = [50, 80, 100, 200, 500, 800, 1000]
 
-        param2_label = 'max_depth'
-        param2_list = [2, 3, 4, 5, 6, 7, 8, 9]
+            param2_label = 'max_depth'
+            param2_list = [2, 3, 4, 5, 6, 7, 8, 9]
 
         error_rate = defaultdict(list)
 
@@ -104,12 +116,19 @@ def get_opt_param_learning_rate_min_child_weight(df, tic, OUT_DIR):
         train_val = df[pred_day - config.TRAIN_VAL_SIZE:pred_day].copy()
         test = df[pred_day:pred_day + config.H].copy()
 
-        param_label = 'learning_rate'
-        # param_list = [0.0001, 0.001, 0.005, 0.01, 0.05, 0.1, 0.2, 0.3]
-        param_list = [0.001, 0.01, 0.1, 0.2, 0.4, 0.5]
+        if(config.MODE_DEBUG == True):
+            param_label = 'learning_rate'
+            param_list = [0.2]
 
-        param2_label = 'min_child_weight'
-        param2_list = range(5, 25, 1)
+            param2_label = 'min_child_weight'
+            param2_list = [5]
+        else:
+            param_label = 'learning_rate'
+            # param_list = [0.0001, 0.001, 0.005, 0.01, 0.05, 0.1, 0.2, 0.3]
+            param_list = [0.001, 0.01, 0.1, 0.2, 0.4, 0.5]
+    
+            param2_label = 'min_child_weight'
+            param2_list = range(5, 25, 5)
 
         error_rate = defaultdict(list)
 
@@ -176,11 +195,18 @@ def get_opt_param_subsample_gamma(df, tic, OUT_DIR):
         train_val = df[pred_day - config.TRAIN_VAL_SIZE:pred_day].copy()
         test = df[pred_day:pred_day + config.H].copy()
 
-        param_label = 'subsample'
-        param_list = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1]
+        if (config.MODE_DEBUG == True):
+            param_label = 'subsample'
+            param_list = [0.4]
 
-        param2_label = 'gamma'
-        param2_list = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1]
+            param2_label = 'gamma'
+            param2_list = [0.5]
+        else:   
+            param_label = 'subsample'
+            param_list = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1]
+    
+            param2_label = 'gamma'
+            param2_list = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1]
 
         error_rate = defaultdict(list)
 
@@ -247,11 +273,18 @@ def get_opt_param_colsample_bytree_colsample_bylevel(df, tic, OUT_DIR):
         train_val = df[pred_day - config.TRAIN_VAL_SIZE:pred_day].copy()
         test = df[pred_day:pred_day + config.H].copy()
 
-        param_label = 'colsample_bytree'
-        param_list = [0.5, 0.8, 0.9, 1]
+        if (config.MODE_DEBUG == True):
+            param_label = 'colsample_bytree'
+            param_list = [0.5]
 
-        param2_label = 'colsample_bylevel'
-        param2_list = [0.5, 0.6, 0.7, 0.8, 0.9, 1]
+            param2_label = 'colsample_bylevel'
+            param2_list = [0.5]
+        else:
+            param_label = 'colsample_bytree'
+            param_list = [0.5, 0.8, 0.9, 1]
+    
+            param2_label = 'colsample_bylevel'
+            param2_list = [0.5, 0.6, 0.7, 0.8, 0.9, 1]
 
         error_rate = defaultdict(list)
 
