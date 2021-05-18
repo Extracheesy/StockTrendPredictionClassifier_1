@@ -24,7 +24,7 @@ def tuning_param(df, tic, OUT_DIR):
     df_param.append(pd.DataFrame(list(zip(colsample_bytree_opt_param, colsample_bylevel_opt_param)), columns=['colsample_bytree', 'colsample_bylevel']))
 
     filename = OUT_DIR + tic + "_opt_param.csv"
-    df.to_csv(filename)
+    df_param.to_csv(filename)
 
 
 def get_opt_param_n_estimators_max_depth(df, tic, OUT_DIR):
