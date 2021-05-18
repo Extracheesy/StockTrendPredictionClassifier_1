@@ -12,16 +12,27 @@ def tuning_param(df, tic, OUT_DIR):
     init_opt_param()
 
     n_estimators_opt_param, max_depth_opt_param = get_opt_param_n_estimators_max_depth(df, tic, OUT_DIR)
-    df_param = pd.DataFrame(list(zip(n_estimators_opt_param, max_depth_opt_param)), columns =['n_estimators', 'max_depth'])
+    #df_param = pd.DataFrame(list(zip(n_estimators_opt_param, max_depth_opt_param)), columns =['n_estimators', 'max_depth'])
 
     learning_rate_opt_param, min_child_weight_opt_param = get_opt_param_learning_rate_min_child_weight(df, tic, OUT_DIR)
-    df_param.append(pd.DataFrame(list(zip(learning_rate_opt_param, min_child_weight_opt_param)), columns=['learning_rate', 'min_child_weight']))
+    #df_param.append(pd.DataFrame(list(zip(learning_rate_opt_param, min_child_weight_opt_param)), columns=['learning_rate', 'min_child_weight']))
 
     subsample_opt_param, gamma_opt_param = get_opt_param_subsample_gamma(df, tic, OUT_DIR)
-    df_param.append(pd.DataFrame(list(zip(subsample_opt_param, gamma_opt_param)), columns=['subsample', 'gamma']))
+    #df_param.append(pd.DataFrame(list(zip(subsample_opt_param, gamma_opt_param)), columns=['subsample', 'gamma']))
 
     colsample_bytree_opt_param, colsample_bylevel_opt_param = get_opt_param_colsample_bytree_colsample_bylevel(df, tic, OUT_DIR)
-    df_param.append(pd.DataFrame(list(zip(colsample_bytree_opt_param, colsample_bylevel_opt_param)), columns=['colsample_bytree', 'colsample_bylevel']))
+    #df_param.append(pd.DataFrame(list(zip(colsample_bytree_opt_param, colsample_bylevel_opt_param)), columns=['colsample_bytree', 'colsample_bylevel']))
+
+    dict_param = {'n_estimators' : n_estimators_opt_param,
+                  'max_depth' : max_depth_opt_param,
+                  'learning_rate' : learning_rate_opt_param,
+                  'min_child_weight' : min_child_weight_opt_param,
+                  'subsample' : subsample_opt_param,
+                  'colsample_bytree' : colsample_bytree_opt_param,
+                  'colsample_bylevel' : colsample_bylevel_opt_param,
+                  'gamma': gamma_opt_param}
+
+    df_param = pd.DataFrame(dict_param)
 
     filename = OUT_DIR + tic + "_opt_param.csv"
     df_param.to_csv(filename)
