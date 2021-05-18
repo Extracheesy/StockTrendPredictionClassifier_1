@@ -147,34 +147,58 @@ def plot_error_rate(df, OUT_DIR, tic):
     fig.set_size_inches(20, 8)
 
     plt.plot(df[df.columns[0]], df['rmse'], linewidth=0.5)
+
+    plt.grid(True)
+    filename = OUT_DIR + tic + "_rmse_1.png"
+    plt.savefig(filename, dpi=500)
+    plt.close('all')
+
     plt.plot(df[df.columns[1]], df['rmse'], linewidth=0.5)
 
     plt.grid(True)
-    filename = OUT_DIR + tic + "_rmse.png"
+    filename = OUT_DIR + tic + "_rmse_2.png"
     plt.savefig(filename, dpi=500)
     plt.close('all')
 
     plt.plot(df[df.columns[0]], df['mape'], linewidth=0.5)
+
+    plt.grid(True)
+    filename = OUT_DIR + tic + "_mape_1.png"
+    plt.savefig(filename, dpi=500)
+    plt.close('all')
+
     plt.plot(df[df.columns[1]], df['mape'], linewidth=0.5)
 
     plt.grid(True)
-    filename = OUT_DIR + tic + "_mape.png"
+    filename = OUT_DIR + tic + "_mape_2.png"
     plt.savefig(filename, dpi=500)
     plt.close('all')
 
     plt.plot(df[df.columns[0]], df['mae'], linewidth=0.5)
+
+    plt.grid(True)
+    filename = OUT_DIR + tic + "_mae_1.png"
+    plt.savefig(filename, dpi=500)
+    plt.close('all')
+
     plt.plot(df[df.columns[1]], df['mae'], linewidth=0.5)
 
     plt.grid(True)
-    filename = OUT_DIR + tic + "_mae.png"
+    filename = OUT_DIR + tic + "_mae_2.png"
     plt.savefig(filename, dpi=500)
     plt.close('all')
 
     plt.plot(df[df.columns[0]], df['accuracy'], linewidth=0.5)
+
+    plt.grid(True)
+    filename = OUT_DIR + tic + "_accuracy_1.png"
+    plt.savefig(filename, dpi=500)
+    plt.close('all')
+
     plt.plot(df[df.columns[1]], df['accuracy'], linewidth=0.5)
 
     plt.grid(True)
-    filename = OUT_DIR + tic + "_accuracy.png"
+    filename = OUT_DIR + tic + "_accuracy_2.png"
     plt.savefig(filename, dpi=500)
     plt.close('all')
 
