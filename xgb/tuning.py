@@ -6,6 +6,7 @@ import config
 from collections import defaultdict
 from predict import get_error_metrics
 from init import init_opt_param
+from plot import plot_error_rate
 
 def tuning_param(df, tic, OUT_DIR):
 
@@ -51,14 +52,12 @@ def get_opt_param_n_estimators_max_depth(df, tic, OUT_DIR):
         if(config.MODE_DEBUG == True):
             param_label = 'n_estimators'
             param_list = [100]
-    
             param2_label = 'max_depth'
             param2_list = [3]
         else:
             param_label = 'n_estimators'
             # param_list = range(30, 61, 1)
             param_list = [50, 80, 100, 200, 500, 800, 1000]
-
             param2_label = 'max_depth'
             param2_list = [2, 3, 4, 5, 6, 7, 8, 9]
 
@@ -90,6 +89,15 @@ def get_opt_param_n_estimators_max_depth(df, tic, OUT_DIR):
                 error_rate['accuracy'].append(accuracy_mean)
 
     error_rate = pd.DataFrame(error_rate)
+
+    if(config.ERROR_RATE_DISPLAY == True):
+        if (os.path.isdir(OUT_DIR + "error_rate/") == False):
+            print("new directory: ", OUT_DIR + "error_rate/")
+            os.mkdir(OUT_DIR + "error_rate/")
+
+        filename = OUT_DIR + "error_rate/" + tic + "_error_rate_n_esti_max_depth.csv"
+        error_rate.to_csv(filename)
+        plot_error_rate(error_rate, OUT_DIR + "error_rate/", tic + "_n_estimator_max_depth")
 
     n_estimators_opt_param = []
     max_depth_opt_param = []
@@ -170,6 +178,15 @@ def get_opt_param_learning_rate_min_child_weight(df, tic, OUT_DIR):
 
     error_rate = pd.DataFrame(error_rate)
 
+    if(config.ERROR_RATE_DISPLAY == True):
+        if (os.path.isdir(OUT_DIR + "error_rate/") == False):
+            print("new directory: ", OUT_DIR + "error_rate/")
+            os.mkdir(OUT_DIR + "error_rate/")
+
+        filename = OUT_DIR + tic + "_error_rate_learn_rate_min_child_w.csv"
+        error_rate.to_csv(filename)
+        plot_error_rate(error_rate, OUT_DIR + "error_rate/", tic + "_learn_rate_min_child_w")
+
     learning_rate_opt_param = []
     min_child_weight_opt_param = []
 
@@ -248,6 +265,15 @@ def get_opt_param_subsample_gamma(df, tic, OUT_DIR):
 
     error_rate = pd.DataFrame(error_rate)
 
+    if(config.ERROR_RATE_DISPLAY == True):
+        if (os.path.isdir(OUT_DIR + "error_rate/") == False):
+            print("new directory: ", OUT_DIR + "error_rate/")
+            os.mkdir(OUT_DIR + "error_rate/")
+
+        filename = OUT_DIR + tic + "_error_rate_subsample_gam.csv"
+        error_rate.to_csv(filename)
+        plot_error_rate(error_rate, OUT_DIR + "error_rate/", tic + "_subsample_gamma")
+
     subsample_opt_param = []
     gamma_opt_param = []
 
@@ -325,6 +351,15 @@ def get_opt_param_colsample_bytree_colsample_bylevel(df, tic, OUT_DIR):
                 error_rate['accuracy'].append(accuracy_mean)
 
     error_rate = pd.DataFrame(error_rate)
+
+    if(config.ERROR_RATE_DISPLAY == True):
+        if (os.path.isdir(OUT_DIR + "error_rate/") == False):
+            print("new directory: ", OUT_DIR + "error_rate/")
+            os.mkdir(OUT_DIR + "error_rate/")
+
+        filename = OUT_DIR + tic + "_error_rate_colsample.csv"
+        error_rate.to_csv(filename)
+        plot_error_rate(error_rate, OUT_DIR + "error_rate/", tic + "_colsample")
 
     colsample_bytree_opt_param = []
     colsample_bylevel_opt_param = []

@@ -142,6 +142,41 @@ def plot_importance_features_no_tuning(imp, tic, OUT_DIR):
     plt.savefig(filename, dpi=500)
     plt.close('all')
 
+def plot_error_rate(df, OUT_DIR, tic):
+    fig = plt.figure()
+    fig.set_size_inches(20, 8)
+
+    plt.plot(df[df.columns[0]], df['rmse'], linewidth=0.5)
+    plt.plot(df[df.columns[1]], df['rmse'], linewidth=0.5)
+
+    plt.grid(True)
+    filename = OUT_DIR + tic + "_rmse.png"
+    plt.savefig(filename, dpi=500)
+    plt.close('all')
+
+    plt.plot(df[df.columns[0]], df['mape'], linewidth=0.5)
+    plt.plot(df[df.columns[1]], df['mape'], linewidth=0.5)
+
+    plt.grid(True)
+    filename = OUT_DIR + tic + "_mape.png"
+    plt.savefig(filename, dpi=500)
+    plt.close('all')
+
+    plt.plot(df[df.columns[0]], df['mae'], linewidth=0.5)
+    plt.plot(df[df.columns[1]], df['mae'], linewidth=0.5)
+
+    plt.grid(True)
+    filename = OUT_DIR + tic + "_mae.png"
+    plt.savefig(filename, dpi=500)
+    plt.close('all')
+
+    plt.plot(df[df.columns[0]], df['accuracy'], linewidth=0.5)
+    plt.plot(df[df.columns[1]], df['accuracy'], linewidth=0.5)
+
+    plt.grid(True)
+    filename = OUT_DIR + tic + "_accuracy.png"
+    plt.savefig(filename, dpi=500)
+    plt.close('all')
 
 
 

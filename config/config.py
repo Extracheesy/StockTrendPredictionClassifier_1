@@ -5,7 +5,8 @@ TRAIN_SIZE = 252 * 3  # Use 3 years of data as train set. Note there are about 2
 VAL_SIZE = 252  # Use 1 year of data as validation set
 TRAIN_VAL_SIZE = TRAIN_SIZE + VAL_SIZE
 
-PRED_DAY_LIST = [1008, 1050, 1092, 1134, 1176, 1218, 1260, 1302, 1344, 1386, 1428, 1470]
+#PRED_DAY_LIST = [1008, 1050, 1092, 1134, 1176, 1218, 1260, 1302, 1344, 1386, 1428, 1470]
+PRED_DAY_LIST = [1008, 1050, 1092]
 PRED_DAY = 1008  # Predict for this day, for the next H-1 days. Note indexing of days start from 0.
 
 TRACES_DIR = "./traces/"
@@ -16,8 +17,11 @@ STOCKS_DJI_DIRECTORY = './Data/Stocks_dji/'
 READ_DATA_FILE = True
 #READ_DATA_FILE = False
 
-#MODE_DEBUG = False
-MODE_DEBUG = True
+MODE_DEBUG = False
+#MODE_DEBUG = True
+
+ERROR_RATE_DISPLAY = True
+#ERROR_RATE_DISPLAY = False
 
 ADD_INDICATORS = True
 PLOT_PRICE = False
