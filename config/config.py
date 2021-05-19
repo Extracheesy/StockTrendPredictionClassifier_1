@@ -55,3 +55,16 @@ OPT_SUBSAMPLE = SUBSAMPLE
 OPT_COLSAMPLE_BYTREE = COLSAMPLE_BYTREE
 OPT_COLSAMPLE_BYLEVEL = COLSAMPLE_BYLEVEL
 OPT_GAMMA = GAMMA
+
+LIST_COLUMNS = ['rmse',
+                'mape',
+                'mae',
+                'accuracy',
+                'n_estimators',
+                'max_depth',
+                'learning_rate',
+                'min_child_weight',
+                'subsample',
+                'colsample_bytree',
+                'colsample_bylevel',
+                'gamma']

@@ -122,3 +122,20 @@ def get_mov_avg_std(df, col, N):
     df_out[col + '_std'] = std_list
 
     return df_out
+
+def addRow(df,ls):
+    """
+    Given a dataframe and a list, append the list as a new row to the dataframe.
+
+    :param df: <DataFrame> The original dataframe
+    :param ls: <list> The new row to be added
+    :return: <DataFrame> The dataframe with the newly appended row
+    """
+
+    numEl = len(ls)
+
+    newRow = pd.DataFrame(np.array(ls).reshape(1,numEl), columns = list(df.columns))
+
+    df = df.append(newRow, ignore_index=True)
+
+    return df

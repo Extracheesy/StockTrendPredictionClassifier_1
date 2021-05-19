@@ -3,46 +3,50 @@ import numpy as np
 import pandas as pd
 
 import config
-
+from tools import addRow
 from error import get_error_metrics
 
 def run_validation_set_with_tuned_param(df, tic, OUT_DIR):
 
+    df_param_final = pd.DataFrame(columns=config.LIST_COLUMNS)
+
+    filename = OUT_DIR + tic + "_opt_param.csv"
+    df_param = pd.read_csv(filename)
+
+    n_estimators_opt_param = df_param['n_estimators']
+    n_estimators_opt_param = list(set(n_estimators_opt_param))
+
+    max_depth_opt_param = df_param['max_depth']
+    max_depth_opt_param = list(set(max_depth_opt_param))
+
+    learning_rate_opt_param = df_param['learning_rate']
+    learning_rate_opt_param = list(set(learning_rate_opt_param))
+
+    min_child_weight_opt_param = df_param['min_child_weight']
+    min_child_weight_opt_param = list(set(min_child_weight_opt_param))
+
+    subsample_opt_param = df_param['subsample']
+    subsample_opt_param = list(set(subsample_opt_param))
+
+    colsample_bytree_opt_param = df_param['colsample_bytree']
+    colsample_bytree_opt_param = list(set(colsample_bytree_opt_param))
+
+    colsample_bylevel_opt_param = df_param['colsample_bylevel']
+    colsample_bylevel_opt_param = list(set(colsample_bylevel_opt_param))
+
+    gamma_opt_param = df_param['gamma']
+    gamma_opt_param = list(set(gamma_opt_param))
+
     for pred_day in config.PRED_DAY_LIST:
-        print("Get error metrics on validation set after hyperparameter tuning")
+        print("Day:", pred_day," - Get error metrics on validation set after hyperparameter tuning")
 
         train = df[pred_day - config.TRAIN_VAL_SIZE:pred_day - config.VAL_SIZE].copy()
         val = df[pred_day - config.VAL_SIZE:pred_day].copy()
         train_val = df[pred_day - config.TRAIN_VAL_SIZE:pred_day].copy()
         test = df[pred_day:pred_day + config.H].copy()
 
-        filename = OUT_DIR + tic + "_opt_param.csv"
-        df_param = pd.read_csv(filename)
-
-        n_estimators_opt_param = df_param['n_estimators']
-        n_estimators_opt_param = list(set(n_estimators_opt_param))
-
-        max_depth_opt_param = df_param['max_depth']
-        max_depth_opt_param = list(set(max_depth_opt_param))
-
-        learning_rate_opt_param = df_param['learning_rate']
-        learning_rate_opt_param = list(set(learning_rate_opt_param))
-
-        min_child_weight_opt_param = df_param['min_child_weight']
-        min_child_weight_opt_param = list(set(min_child_weight_opt_param))
-
-        subsample_opt_param = df_param['subsample']
-        subsample_opt_param = list(set(subsample_opt_param))
-
-        colsample_bytree_opt_param = df_param['colsample_bytree']
-        colsample_bytree_opt_param = list(set(colsample_bytree_opt_param))
-
-        colsample_bylevel_opt_param = df_param['colsample_bylevel']
-        colsample_bylevel_opt_param = list(set(colsample_bylevel_opt_param))
-
-        gamma_opt_param = df_param['gamma']
-        gamma_opt_param = list(set(gamma_opt_param))
-
+        iteration = len(n_estimators_opt_param) * len(max_depth_opt_param) * len(learning_rate_opt_param) * len(min_child_weight_opt_param) * len(subsample_opt_param) * len(colsample_bytree_opt_param) * len(colsample_bylevel_opt_param) * len(gamma_opt_param)
+        progress_iteration = iteration
         best_rmse = 100
         for n_estimators_opt in n_estimators_opt_param:
             for max_depth_opt in max_depth_opt_param:
@@ -52,6 +56,9 @@ def run_validation_set_with_tuned_param(df, tic, OUT_DIR):
                             for colsample_bytree_opt in colsample_bytree_opt_param:
                                 for colsample_bylevel_opt in colsample_bylevel_opt_param:
                                     for gamma_opt in gamma_opt_param:
+                                        progress_iteration = progress_iteration -1
+                                        if((progress_iteration %10) == 0):
+                                            print("iteration -> ", iteration," / ",progress_iteration)
                                         rmse_aft_tuning, mape_aft_tuning, mae_aft_tuning, accuracy_aft_tuning, preds_dict = get_error_metrics(train_val,
                                                                                                                                               config.TRAIN_SIZE,
                                                                                                                                               config.N,
@@ -96,5 +103,26 @@ def run_validation_set_with_tuned_param(df, tic, OUT_DIR):
         print("Best VAL -",tic ," colsample_bylevel_opt: ", best_colsample_bylevel)
         print("Best VAL -",tic ," gamma_opt: ", best_gamma)
 
+
+        list_param = []
+        list_param.append(best_rmse)
+        list_param.append(best_mape)
+        list_param.append(best_mae)
+        list_param.append(best_accuracy)
+        list_param.append(best_n_estimators)
+        list_param.append(best_max_depth)
+        list_param.append(best_learning_rate)
+        list_param.append(best_min_child_weight)
+        list_param.append(best_subsample)
+        list_param.append(best_colsample_bytree)
+        list_param.append(best_colsample_bylevel)
+        list_param.append(best_gamma)
+
+        addRow(df_param_final, list_param)
+
         plot_preds_after_tuning(train, val, test, train_val, config.H, best_est_dict, tic, OUT_DIR)
+
+    filename = OUT_DIR + tic + "_final_param.csv"
+    df_param_final.to_csv(filename)
+
 
