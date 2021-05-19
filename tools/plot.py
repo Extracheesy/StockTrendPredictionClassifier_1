@@ -202,7 +202,39 @@ def plot_error_rate(df, OUT_DIR, tic):
     plt.savefig(filename, dpi=500)
     plt.close('all')
 
+def plot_preds_after_tuning(train, val, test, train_val, H,preds_dict, tic, OUT_DIR):
+    fig = plt.figure()
+    fig.set_size_inches(20, 8)
 
+    plt.plot(train['date'], train['adj_close'], linewidth=0.5)
+    plt.plot(val['date'], val['adj_close'], linewidth=0.5)
+    plt.plot(test['date'], test['adj_close'], linewidth=0.5)
+
+    # Plot the predictions
+    n = 0
+    for key in preds_dict:
+        plt.plot(train_val[key:key + H]['date'], preds_dict[key], linewidth=0.5)
+
+    plt.grid(True)
+    filename = OUT_DIR + tic + "_prds_a_tuning.png"
+    plt.savefig(filename, dpi=500)
+    plt.close('all')
+
+    fig = plt.figure()
+    fig.set_size_inches(20, 8)
+
+    plt.plot(val['date'], val['adj_close'], linewidth=0.5)
+    plt.plot(test['date'], test['adj_close'], linewidth=0.5)
+
+    # Plot the predictions
+    n = 0
+    for key in preds_dict:
+        plt.plot(train_val[key:key + H]['date'], preds_dict[key], linewidth=0.5)
+
+    plt.grid(True)
+    filename = OUT_DIR + tic + "_prds_a_tuning_zoom.png"
+    plt.savefig(filename, dpi=500)
+    plt.close('all')
 
 
 

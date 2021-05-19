@@ -3,6 +3,7 @@ import config
 import pandas as pd
 import numpy as np
 import re
+from re import search
 
 def filter_df_date_year(df, year):
     df = df[(df['date'].dt.year >= year)].copy()
@@ -60,6 +61,10 @@ def add_lags(df, N, lag_cols):
     Add lags up to N number of days to use as features
     The lag columns are labelled as 'adj_close_lag_1', 'adj_close_lag_2', ... etc.
     """
+    for column_name in df.columns:
+        if column_name.find("_lag_") != -1:
+            return df
+
     # Use lags up to N number of days to use as features
     df_w_lags = df.copy()
     df_w_lags.loc[:, 'order_day'] = [x for x in list(

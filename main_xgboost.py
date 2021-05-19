@@ -20,7 +20,8 @@ from tools import format_df
 from corr import get_corr_matrix
 from predict import predict_df_before_tuning
 from predict import predict_df_before_tuning_one_pred
-from tuning import tuning_param
+from predict import predict_df_val_tuned_param
+from predict import predict_tuning_param
 
 # Mute sklearn warnings
 from warnings import simplefilter
@@ -78,8 +79,12 @@ for tic in LIST_TICKER_DJI['Symbol']:
     if (config.PREDICT_BEFORE_TUNING_ONE_PRED == True):
         predict_df_before_tuning_one_pred(df, tic, OUT_DIR)
 
-    if (config.TUNING_PARAM == True):
-        tuning_param(df, tic, OUT_DIR)
+    if (config.PREDICT_TUNING_PARAM == True):
+        predict_tuning_param(df, tic, OUT_DIR)
+
+    if (config.PREDICT_VALID_WITH_PARAM == True):
+        predict_df_val_tuned_param(df, tic, OUT_DIR)
+
 
 
 

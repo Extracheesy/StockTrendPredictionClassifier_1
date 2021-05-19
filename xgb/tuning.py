@@ -3,8 +3,9 @@ import numpy as np
 import pandas as pd
 
 import config
+
 from collections import defaultdict
-from predict import get_error_metrics
+from error import get_error_metrics
 from init import init_opt_param
 from plot import plot_error_rate
 
@@ -119,9 +120,6 @@ def get_opt_param_n_estimators_max_depth(df, tic, OUT_DIR):
     n_estimators_opt_param.append(temp['n_estimators'].values[0])
     max_depth_opt_param.append(temp['max_depth'].values[0])
 
-    #n_estimators_opt_param = list(set(n_estimators_opt_param))
-    #max_depth_opt_param = list(set(max_depth_opt_param))
-
     return n_estimators_opt_param, max_depth_opt_param
 
 
@@ -183,7 +181,7 @@ def get_opt_param_learning_rate_min_child_weight(df, tic, OUT_DIR):
             print("new directory: ", OUT_DIR + "error_rate/")
             os.mkdir(OUT_DIR + "error_rate/")
 
-        filename = OUT_DIR + tic + "_error_rate_learn_rate_min_child_w.csv"
+        filename = OUT_DIR + "error_rate/" + tic + "_error_rate_learn_rate_min_child_w.csv"
         error_rate.to_csv(filename)
         plot_error_rate(error_rate, OUT_DIR + "error_rate/", tic + "_learn_rate_min_child_w")
 
@@ -206,9 +204,6 @@ def get_opt_param_learning_rate_min_child_weight(df, tic, OUT_DIR):
     temp = error_rate[error_rate['accuracy'] == error_rate['accuracy'].max()]
     learning_rate_opt_param.append(temp['learning_rate'].values[0])
     min_child_weight_opt_param.append(temp['min_child_weight'].values[0])
-
-    #learning_rate_opt_param = list(set(learning_rate_opt_param))
-    #min_child_weight_opt_param = list(set(min_child_weight_opt_param))
 
     return learning_rate_opt_param, min_child_weight_opt_param
 
@@ -270,9 +265,11 @@ def get_opt_param_subsample_gamma(df, tic, OUT_DIR):
             print("new directory: ", OUT_DIR + "error_rate/")
             os.mkdir(OUT_DIR + "error_rate/")
 
-        filename = OUT_DIR + tic + "_error_rate_subsample_gam.csv"
+        filename = OUT_DIR + "error_rate/" + tic + "_error_rate_subsample_gam.csv"
         error_rate.to_csv(filename)
         plot_error_rate(error_rate, OUT_DIR + "error_rate/", tic + "_subsample_gamma")
+
+
 
     subsample_opt_param = []
     gamma_opt_param = []
@@ -293,9 +290,6 @@ def get_opt_param_subsample_gamma(df, tic, OUT_DIR):
     temp = error_rate[error_rate['accuracy'] == error_rate['accuracy'].max()]
     subsample_opt_param.append(temp['subsample'].values[0])
     gamma_opt_param.append(temp['gamma'].values[0])
-
-    #subsample_opt_param = list(set(subsample_opt_param))
-    #gamma_opt_param = list(set(gamma_opt_param))
 
     return subsample_opt_param, gamma_opt_param
 
@@ -357,7 +351,7 @@ def get_opt_param_colsample_bytree_colsample_bylevel(df, tic, OUT_DIR):
             print("new directory: ", OUT_DIR + "error_rate/")
             os.mkdir(OUT_DIR + "error_rate/")
 
-        filename = OUT_DIR + tic + "_error_rate_colsample.csv"
+        filename = OUT_DIR + "error_rate/" + tic + "_error_rate_colsample.csv"
         error_rate.to_csv(filename)
         plot_error_rate(error_rate, OUT_DIR + "error_rate/", tic + "_colsample")
 
@@ -380,8 +374,5 @@ def get_opt_param_colsample_bytree_colsample_bylevel(df, tic, OUT_DIR):
     temp = error_rate[error_rate['accuracy'] == error_rate['accuracy'].max()]
     colsample_bytree_opt_param.append(temp['colsample_bytree'].values[0])
     colsample_bylevel_opt_param.append(temp['colsample_bylevel'].values[0])
-
-    #colsample_bytree_opt_param = list(set(colsample_bytree_opt_param))
-    #colsample_bylevel_opt_param = list(set(colsample_bylevel_opt_param))
 
     return colsample_bytree_opt_param, colsample_bylevel_opt_param

@@ -2,7 +2,14 @@ import os
 import numpy as np
 import pandas as pd
 import math
+
+import config
+
+from xgboost import XGBRegressor
+from xgb import pred_xgboost
+
 from tools import do_scaling
+from tools import add_lags
 from sklearn.metrics import accuracy_score
 
 def get_rmse(a, b):
@@ -190,6 +197,78 @@ def get_error_metrics(df,
 
     return np.mean(rmse_list), np.mean(mape_list), np.mean(mae_list), np.mean(accuracy_list), preds_dict
 
+def train_pred_eval_model(X_train_scaled,
+                          y_train_scaled,
+                          X_test_ex_adj_close,
+                          y_test,
+                          N,
+                          H,
+                          prev_vals,
+                          prev_mean_val,
+                          prev_std_val,
+                          seed=100,
+                          n_estimators=100,
+                          max_depth=3,
+                          learning_rate=0.1,
+                          min_child_weight=1,
+                          subsample=1,
+                          colsample_bytree=1,
+                          colsample_bylevel=1,
+                          gamma=0):
+    '''
+    Train model, do prediction, scale back to original range and do evaluation
+    Use XGBoost here.
+    Inputs
+        X_train_scaled     : features for training. Scaled to have mean 0 and variance 1
+        y_train_scaled     : target for training. Scaled to have mean 0 and variance 1
+        X_test_ex_adj_close: features of the test set, excluding adj_close_scaled values
+        y_test             : target for test. Actual values, not scaled.
+        N                  : for feature at day t, we use lags from t-1, t-2, ..., t-N as features
+        H                  : forecast horizon
+        prev_vals          : numpy array. If predict at time t,
+                             prev_vals will contain the N unscaled values at t-1, t-2, ..., t-N
+        prev_mean_val      : the mean of the unscaled values at t-1, t-2, ..., t-N
+        prev_std_val       : the std deviation of the unscaled values at t-1, t-2, ..., t-N
+        seed               : model seed
+        n_estimators       : number of boosted trees to fit
+        max_depth          : maximum tree depth for base learners
+        learning_rate      : boosting learning rate (xgb’s “eta”)
+        min_child_weight   : minimum sum of instance weight(hessian) needed in a child
+        subsample          : subsample ratio of the training instance
+        colsample_bytree   : subsample ratio of columns when constructing each tree
+        colsample_bylevel  : subsample ratio of columns for each split, in each level
+        gamma              :
+    Outputs
+        rmse               : root mean square error of y_test and est
+        mape               : mean absolute percentage error of y_test and est
+        mae                : mean absolute error of y_test and est
+        est                : predicted values. Same length as y_test
+    '''
+
+    model = XGBRegressor(objective='reg:squarederror',
+                         seed=config.MODEL_SEED,
+                         n_estimators=n_estimators,
+                         max_depth=max_depth,
+                         learning_rate=learning_rate,
+                         min_child_weight=min_child_weight,
+                         subsample=subsample,
+                         colsample_bytree=colsample_bytree,
+                         colsample_bylevel=colsample_bylevel,
+                         gamma=gamma)
+
+    # Train the model
+    model.fit(X_train_scaled, y_train_scaled)
+
+    # Get predicted labels and scale back to original range
+    est = pred_xgboost(model, X_test_ex_adj_close, N, H, prev_vals, prev_mean_val, prev_std_val)
+
+    # Calculate RMSE, MAPE, MAE
+    rmse = get_rmse(y_test, est)
+    mape = get_mape(y_test, est)
+    mae = get_mae(y_test, est)
+    accuracy = get_accuracy_trend(y_test, est)
+
+    return rmse, mape, mae, accuracy, est, model.feature_importances_
 
 def get_error_metrics_one_pred(df,
                                train_size,
