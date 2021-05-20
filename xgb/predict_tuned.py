@@ -5,13 +5,19 @@ import pandas as pd
 import config
 from tools import addRow
 from error import get_error_metrics
+from plot import plot_preds_after_tuning
 
 def run_validation_set_with_tuned_param(df, tic, OUT_DIR):
 
-    df_param_final = pd.DataFrame(columns=config.LIST_COLUMNS)
-
     filename = OUT_DIR + tic + "_opt_param.csv"
     df_param = pd.read_csv(filename)
+
+    OUT_DIR = OUT_DIR + "after_tuning/"
+    if (os.path.isdir(OUT_DIR) == False):
+        print("new results directory: ", OUT_DIR)
+        os.mkdir(OUT_DIR)
+
+    df_param_final = pd.DataFrame(columns=config.LIST_COLUMNS)
 
     n_estimators_opt_param = df_param['n_estimators']
     n_estimators_opt_param = list(set(n_estimators_opt_param))
@@ -57,7 +63,7 @@ def run_validation_set_with_tuned_param(df, tic, OUT_DIR):
                                 for colsample_bylevel_opt in colsample_bylevel_opt_param:
                                     for gamma_opt in gamma_opt_param:
                                         progress_iteration = progress_iteration -1
-                                        if((progress_iteration %10) == 0):
+                                        if((progress_iteration %50) == 0):
                                             print("iteration -> ", iteration," / ",progress_iteration)
                                         rmse_aft_tuning, mape_aft_tuning, mae_aft_tuning, accuracy_aft_tuning, preds_dict = get_error_metrics(train_val,
                                                                                                                                               config.TRAIN_SIZE,
@@ -89,6 +95,7 @@ def run_validation_set_with_tuned_param(df, tic, OUT_DIR):
                                             best_colsample_bylevel = colsample_bylevel_opt
                                             best_gamma = gamma_opt
 
+
         print("Best VAL -",tic ," RMSE = %0.3f" % best_rmse)
         print("Best VAL -",tic ," MAPE = %0.3f%%" % best_mape)
         print("Best VAL -",tic ," MAE = %0.3f" % best_mae)
@@ -118,9 +125,12 @@ def run_validation_set_with_tuned_param(df, tic, OUT_DIR):
         list_param.append(best_colsample_bylevel)
         list_param.append(best_gamma)
 
-        addRow(df_param_final, list_param)
+        df_param_final = addRow(df_param_final, list_param)
 
-        plot_preds_after_tuning(train, val, test, train_val, config.H, best_est_dict, tic, OUT_DIR)
+        filename = OUT_DIR + tic + "_" + str(pred_day) + "_final_param.csv"
+        df_param_final.to_csv(filename)
+
+        plot_preds_after_tuning(train, val, test, train_val, config.H, best_est_dict, tic + str(pred_day), OUT_DIR)
 
     filename = OUT_DIR + tic + "_final_param.csv"
     df_param_final.to_csv(filename)
