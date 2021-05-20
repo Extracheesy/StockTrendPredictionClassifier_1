@@ -85,6 +85,9 @@ for tic in LIST_TICKER_DJI['Symbol']:
     if (config.PREDICT_VALID_WITH_PARAM == True):
         predict_df_val_tuned_param(df, tic, OUT_DIR)
 
+    if (config.PREDICT_TEST_SET_WITH_PARAM == True):
+        run_validation_set_with_tuned_param(df, tic, OUT_DIR)
+
 
 
 

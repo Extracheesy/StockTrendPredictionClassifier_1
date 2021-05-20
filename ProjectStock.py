@@ -1802,7 +1802,7 @@ for pred_day in pred_day_list:
     print("===> MAE = %0.3f" % test_mae_aft_tuning)
     print("===> ACCURACY = %0.3f" % test_accuracy_bef_tuning)
 
-    """
+
     print("# In[1113]: GS")
     print("Do prediction on test set with GS:")
     test_rmse_aft_tuning, test_mape_aft_tuning, test_mae_aft_tuning, test_accuracy_bef_tuning, est = get_error_metrics_GS(df[pred_day-train_val_size:pred_day+H],
@@ -1823,7 +1823,7 @@ for pred_day in pred_day_list:
     print("MAPE = %0.3f%%" % test_mape_bef_tuning)
     print("MAE = %0.3f" % test_mae_bef_tuning)
     print("ACCURACY = %0.3f" % test_accuracy_bef_tuning)
-    """
+
 
     print("# In[1114]:")
 
