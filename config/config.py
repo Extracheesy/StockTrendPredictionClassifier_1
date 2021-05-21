@@ -1,4 +1,4 @@
-N = 10  # for feature at day t, we use lags from t-1, t-2, ..., t-N as features
+N = 21  # for feature at day t, we use lags from t-1, t-2, ..., t-N as features
 #H = 21  # Forecast horizon, in days. Note there are about 252 trading days in a year
 H = 5  # Forecast horizon, in days. Note there are about 252 trading days in a year
 START_YEAR = 2010
@@ -20,22 +20,23 @@ MODE_DEBUG = False
 #MODE_DEBUG = True
 ERROR_RATE_DISPLAY = True
 #ERROR_RATE_DISPLAY = False
+
 ADD_INDICATORS = True
 #ADD_INDICATORS = False
-PLOT_PRICE = False
-#PLOT_PRICE = True
+#PLOT_PRICE = False
+PLOT_PRICE = True
 CORR_MATRIX = False
 #CORR_MATRIX = True
 #PREDICT_BEFORE_TUNING = True
 PREDICT_BEFORE_TUNING = False
 #PREDICT_BEFORE_TUNING_ONE_PRED = True
 PREDICT_BEFORE_TUNING_ONE_PRED = False
-#PREDICT_TUNING_PARAM = True
-PREDICT_TUNING_PARAM = False
+PREDICT_TUNING_PARAM = True
+#PREDICT_TUNING_PARAM = False
 PREDICT_VALID_WITH_PARAM = True
 #RUN_VALID_WITH_PARAM = False
-PREDICT_TEST_SET_WITH_PARAM = True
-#PREDICT_TEST_SET_WITH_PARAM = False
+#PREDICT_TEST_SET_WITH_PARAM = True
+PREDICT_TEST_SET_WITH_PARAM = False
 
 PRINT_SHAPE = False
 #PRINT_SHAPE = True
