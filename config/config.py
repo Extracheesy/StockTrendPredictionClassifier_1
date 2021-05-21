@@ -1,5 +1,6 @@
 N = 10  # for feature at day t, we use lags from t-1, t-2, ..., t-N as features
-H = 21  # Forecast horizon, in days. Note there are about 252 trading days in a year
+#H = 21  # Forecast horizon, in days. Note there are about 252 trading days in a year
+H = 5  # Forecast horizon, in days. Note there are about 252 trading days in a year
 START_YEAR = 2010
 TRAIN_SIZE = 252 * 3  # Use 3 years of data as train set. Note there are about 252 trading days in a year
 VAL_SIZE = 252  # Use 1 year of data as validation set
