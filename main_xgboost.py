@@ -22,6 +22,8 @@ from predict import predict_df_before_tuning
 from predict import predict_df_before_tuning_one_pred
 from predict import predict_df_val_tuned_param
 from predict import predict_tuning_param
+from predict import predict_test_set_with_tuned_param
+
 
 # Mute sklearn warnings
 from warnings import simplefilter
@@ -86,7 +88,7 @@ for tic in LIST_TICKER_DJI['Symbol']:
         predict_df_val_tuned_param(df, tic, OUT_DIR)
 
     if (config.PREDICT_TEST_SET_WITH_PARAM == True):
-        run_validation_set_with_tuned_param(df, tic, OUT_DIR)
+        predict_test_set_with_tuned_param(df, tic, OUT_DIR)
 
 
 

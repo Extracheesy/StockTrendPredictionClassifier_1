@@ -16,6 +16,7 @@ from error import get_mae
 from error import get_accuracy_trend
 from error import get_error_metrics_one_pred
 from predict_tuned import run_validation_set_with_tuned_param
+from predict_test_tuned import run_test_set_with_tuned_param
 from tuning import tuning_param
 
 def predict_df_before_tuning(df, tic, OUT_DIR):
@@ -108,3 +109,7 @@ def predict_df_val_tuned_param(df, tic, OUT_DIR):
 def predict_tuning_param(df, tic, OUT_DIR):
 
     tuning_param(df, tic, OUT_DIR)
+
+def predict_test_set_with_tuned_param(df, tic, OUT_DIR):
+
+    run_test_set_with_tuned_param(df, tic, OUT_DIR)

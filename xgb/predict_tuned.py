@@ -134,5 +134,7 @@ def run_validation_set_with_tuned_param(df, tic, OUT_DIR):
 
     filename = OUT_DIR + tic + "_final_param.csv"
     df_param_final.to_csv(filename)
+    filename = config.RESULTS_DIR + tic + "_final_param.csv"
+    df_param_final.to_csv(filename)
 
 

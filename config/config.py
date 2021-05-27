@@ -31,12 +31,14 @@ CORR_MATRIX = False
 PREDICT_BEFORE_TUNING = False
 #PREDICT_BEFORE_TUNING_ONE_PRED = True
 PREDICT_BEFORE_TUNING_ONE_PRED = False
-PREDICT_TUNING_PARAM = True
-#PREDICT_TUNING_PARAM = False
-PREDICT_VALID_WITH_PARAM = True
-#RUN_VALID_WITH_PARAM = False
-#PREDICT_TEST_SET_WITH_PARAM = True
-PREDICT_TEST_SET_WITH_PARAM = False
+#PREDICT_TUNING_PARAM = True
+PREDICT_TUNING_PARAM = False
+#PREDICT_VALID_WITH_PARAM = True
+PREDICT_VALID_WITH_PARAM = False
+RUN_VALID_WITH_PARAM = False
+PREDICT_TEST_SET_WITH_PARAM = True
+#PREDICT_TEST_SET_WITH_PARAM = False
+PREDICT_GRID_SEARCH = False
 
 PRINT_SHAPE = False
 #PRINT_SHAPE = True
@@ -72,3 +74,26 @@ LIST_COLUMNS = ['rmse',
                 'colsample_bytree',
                 'colsample_bylevel',
                 'gamma']
+
+LIST_COLUMNS_RESULTS = ['day',
+                        'tic',
+                        'type',
+                        'rmse',
+                        'mape',
+                        'mae',
+                        'accuracy',
+                        'trend_day_first',
+                        'trend_day_end',
+                        'trend_all_percent',
+                        'first_day_trend_test',
+                        'first_day_trend_pred',
+                        'end_day_trend_test',
+                        'end_day_trend_pred',
+                        'n_estimators',
+                        'max_depth',
+                        'learning_rate',
+                        'min_child_weight',
+                        'subsample',
+                        'colsample_bytree',
+                        'colsample_bylevel',
+                        'gamma']
