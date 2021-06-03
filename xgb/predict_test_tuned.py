@@ -7,11 +7,15 @@ from error import get_error_metrics_GS
 from error import get_accuracy_trends
 from data_df import set_data_df_param
 from data_df import set_bet_proba
+from data_df import raw_summary_ticker
 import config
 
-def run_test_set_with_tuned_param(df, tic, OUT_DIR):
+def run_test_set_with_tuned_param(df, tic, OUT_DIR, df_summary):
 
-    filename = config.RESULTS_DIR + tic + "_final_param.csv"
+    if(config.GENERIC_PARAM_FOR_TEST == True):
+        filename = config.RESULTS_DIR + "GENERIC_final_param.csv"
+    else:
+        filename = config.RESULTS_DIR + tic + "_final_param.csv"
     df_param = pd.read_csv(filename, index_col=0)
 
     OUT_DIR = OUT_DIR + "test_set_tuning/"
@@ -74,10 +78,11 @@ def run_test_set_with_tuned_param(df, tic, OUT_DIR):
 
             trend_day_first, trend_day_end, trend_all_percent, first_trend_test, first_trend_pred, end_trend_test, end_trend_pred = get_accuracy_trends(df_y_test, df_prediction)
 
-            print("day: ", pred_day," prediction on test set One pred => RMSE = %0.3f" % test_rmse_aft_tuning)
-            print("day: ", pred_day," prediction on test set One pred => MAPE = %0.3f%%" % test_mape_aft_tuning)
-            print("day: ", pred_day," prediction on test set One pred => MAE = %0.3f" % test_mae_aft_tuning)
-            print("day: ", pred_day," prediction on test set One pred => ACCURACY = %0.3f" % test_accuracy_bef_tuning)
+            if(config.MODE_DEBUG == True):
+                print("day: ", pred_day," prediction on test set One pred => RMSE = %0.3f" % test_rmse_aft_tuning)
+                print("day: ", pred_day," prediction on test set One pred => MAPE = %0.3f%%" % test_mape_aft_tuning)
+                print("day: ", pred_day," prediction on test set One pred => MAE = %0.3f" % test_mae_aft_tuning)
+                print("day: ", pred_day," prediction on test set One pred => ACCURACY = %0.3f" % test_accuracy_bef_tuning)
 
             df_results = set_data_df_param(df_results,
                                            tic,
@@ -126,5 +131,12 @@ def run_test_set_with_tuned_param(df, tic, OUT_DIR):
 
     df_results = set_bet_proba(df_results)
 
+    df_summary = raw_summary_ticker(df_results, df_summary, tic)
+
     filename = config.RESULTS_DIR + str(tic) + "_results_tuned.csv"
     df_results.to_csv(filename, index=False)
+
+    filename = config.RESULTS_DIR + str(tic) + "_tmp_summary.csv"
+    df_summary.to_csv(filename, index=False)
+
+    return df_summary

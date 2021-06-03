@@ -43,6 +43,8 @@ PREDICT_GRID_SEARCH = False
 PRINT_SHAPE = False
 #PRINT_SHAPE = True
 
+GENERIC_PARAM_FOR_TEST = True
+
 N_ESTIMATORS = 100  # Number of boosted trees to fit. default = 100
 MAX_DEPTH = 3  # Maximum tree depth for base learners. default = 3
 LEARNING_RATE = 0.1  # Boosting learning rate (xgb’s “eta”). default = 0.1
@@ -97,3 +99,29 @@ LIST_COLUMNS_RESULTS = ['day',
                         'colsample_bytree',
                         'colsample_bylevel',
                         'gamma']
+
+LIST_COLUMNS_TIC_SUMMARY = ['tic',
+                            'iter_pred',
+
+                            'rmse_avg',
+                            'mape_avg',
+                            'mae_avg',
+                            'accuracy_avg',
+
+                            'trend_day_first_accuracy',
+                            'trend_day_end_accuracy',
+                            'trend_all_accuracy',
+
+                            'daily_strategy_win',
+                            'daily_strategy_no_bet',
+                            'daily_strategy_loss',
+
+                            'daily_and_trend_strategy_win',
+                            'daily_and_trend_strategy_no_bet',
+                            'daily_and_trend_strategy_loss',
+
+                            'first_day_trend_test_up',
+                            'first_day_trend_pred_up',
+
+                            'end_day_trend_test_up',
+                            'end_day_trend_pred_up']

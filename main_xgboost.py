@@ -41,6 +41,8 @@ if (os.path.isdir(config.RESULTS_DIR) == False):
 
 LIST_TICKER_DJI = get_df_DJI()
 
+df_summary = pd.DataFrame(columns=config.LIST_COLUMNS_TIC_SUMMARY)
+
 for tic in LIST_TICKER_DJI['Symbol']:
     STOCK_NAME = tic
     OUT_DIR = config.TRACES_DIR + "out_" + STOCK_NAME + "/"
@@ -88,8 +90,9 @@ for tic in LIST_TICKER_DJI['Symbol']:
         predict_df_val_tuned_param(df, tic, OUT_DIR)
 
     if (config.PREDICT_TEST_SET_WITH_PARAM == True):
-        predict_test_set_with_tuned_param(df, tic, OUT_DIR)
-
+        df_summary = predict_test_set_with_tuned_param(df, tic, OUT_DIR, df_summary)
+        filename = config.RESULTS_DIR + "summary_results_final.csv"
+        df_summary.to_csv(filename)
 
 
 

@@ -110,6 +110,8 @@ def predict_tuning_param(df, tic, OUT_DIR):
 
     tuning_param(df, tic, OUT_DIR)
 
-def predict_test_set_with_tuned_param(df, tic, OUT_DIR):
+def predict_test_set_with_tuned_param(df, tic, OUT_DIR, df_summary):
 
-    run_test_set_with_tuned_param(df, tic, OUT_DIR)
+    df_summary = run_test_set_with_tuned_param(df, tic, OUT_DIR, df_summary)
+
+    return df_summary
