@@ -1,0 +1,2 @@
+tic,iter_pred,rmse_avg,mape_avg,mae_avg,accuracy_avg,trend_day_first_accuracy,trend_day_end_accuracy,trend_all_accuracy,daily_strategy_win,daily_strategy_no_bet,daily_strategy_loss,daily_and_trend_strategy_win,daily_and_trend_strategy_no_bet,daily_and_trend_strategy_loss,first_day_trend_test_up,first_day_trend_pred_up,end_day_trend_test_up,end_day_trend_pred_up
+MMM,36,1.41,0.99,1.22,0.54,52.78,66.67,45.37,47.22,16.67,36.11,38.89,30.56,30.56,58.33,83.33,58.33,86.11
