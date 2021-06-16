@@ -7,12 +7,27 @@ VAL_SIZE = 252  # Use 1 year of data as validation set
 TRAIN_VAL_SIZE = TRAIN_SIZE + VAL_SIZE
 
 PRED_DAY_LIST = [1008, 1050, 1092, 1134, 1176, 1218, 1260, 1302, 1344, 1386, 1428, 1470]
+PRED_DAY_NB_ITEM = 10
 PRED_DAY = 1008  # Predict for this day, for the next H-1 days. Note indexing of days start from 0.
 
 TRACES_DIR = "./traces/"
 RESULTS_DIR = TRACES_DIR + "results/"
+FEATURE_DIRECTORY = TRACES_DIR + "feature/"
 STOCKS_DIRECTORY = './Data/Stocks/'
 STOCKS_DJI_DIRECTORY = './Data/Stocks_dji/'
+
+#ADD_LAGS = 'adj_close'
+ADD_LAGS = 'trend'
+
+BALANCE_DATASET = True
+#BALANCE_DATASET = False
+#SMOTE = True
+SMOTE = True
+ADASYN = False
+#ADASYN = False
+
+#CORR_MATRIX = True
+CORR_MATRIX = False
 
 READ_DATA_FILE = True
 #READ_DATA_FILE = False
@@ -23,16 +38,17 @@ ERROR_RATE_DISPLAY = True
 
 ADD_INDICATORS = True
 #ADD_INDICATORS = False
-#PLOT_PRICE = False
-PLOT_PRICE = True
-CORR_MATRIX = False
-#CORR_MATRIX = True
+FILTERS = True
+#FILTERS = False
+PLOT_PRICE = False
+#PLOT_PRICE = True
+
 #PREDICT_BEFORE_TUNING = True
 PREDICT_BEFORE_TUNING = False
 #PREDICT_BEFORE_TUNING_ONE_PRED = True
 PREDICT_BEFORE_TUNING_ONE_PRED = False
-#PREDICT_TUNING_PARAM = True
-PREDICT_TUNING_PARAM = False
+PREDICT_TUNING_PARAM = True
+#PREDICT_TUNING_PARAM = False
 #PREDICT_VALID_WITH_PARAM = True
 PREDICT_VALID_WITH_PARAM = False
 RUN_VALID_WITH_PARAM = False
@@ -125,3 +141,16 @@ LIST_COLUMNS_TIC_SUMMARY = ['tic',
 
                             'end_day_trend_test_up',
                             'end_day_trend_pred_up']
+
+LIST_COLUMNS_FEATURE = ['year',
+                        'month',
+                        'week',
+                        'day',
+                        'dayofweek',
+                        'dayofyear'
+                        #'is_month_end',
+                        #'is_month_start',
+                        #'is_quarter_end',
+                        #'is_quarter_start',
+                        #'is_year_end'
+                        ]

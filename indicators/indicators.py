@@ -1,6 +1,8 @@
-
+import config
 import pandas  as pd
 import numpy as np
+
+from tools import add_lags
 
 import talib
 
@@ -88,6 +90,30 @@ def add_STOCHASTIC(df, n=14):
 
     return df
 
+def add_trend(df_stock_price):
+
+    close = df_stock_price['adj_close']
+
+    # Get the difference in price from previous step
+    delta = close.diff()
+    delta[delta > 0] = int(1)
+    delta[delta <= 0] = int(0)
+    df_stock_price.insert(len(df_stock_price.columns), "trend", delta)
+
+    # Get the tomorrow 'trend' precdiction
+    for i in range(1, config.H + 1, 1):
+        #target_raw = (df_stock_price['adj_close'].shift(-i) / df_stock_price['adj_close']) - 1
+        target_raw = close.shift(-i) - close
+        target_raw[target_raw > 0] = int(1)
+        target_raw[target_raw <= 0] = int(0)
+        df_stock_price.insert(len(df_stock_price.columns), "target_day+" + str(i), target_raw)
+
+
+    df_stock_price = df_stock_price.replace([np.inf, -np.inf], np.nan).dropna()
+    df_stock_price = df_stock_price.reset_index(drop=True)
+
+    return df_stock_price
+
 def add_indicator(df):
 
     df = add_RSI(df, 14)
@@ -100,5 +126,10 @@ def add_indicator(df):
     df = add_ROC(df)
     df = add_WILLIAMS(df, 14)
     df = add_STOCHASTIC(df, 14)
+
+    df = add_trend(df)
+    df = add_lags(df, config.N, [config.ADD_LAGS])
+
+    #df.to_csv("test_df_full_data.csv")
 
     return df

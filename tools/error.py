@@ -6,6 +6,7 @@ import math
 import config
 
 from xgboost import XGBRegressor
+from xgboost import XGBClassifier
 from xgb import pred_xgboost
 
 from tools import do_scaling
@@ -15,6 +16,7 @@ from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import PolynomialFeatures, StandardScaler
 from sklearn.feature_selection import SelectKBest, f_classif
 from sklearn.model_selection import GridSearchCV
+from sklearn.metrics import accuracy_score
 
 def get_rmse(a, b):
     """
@@ -129,33 +131,27 @@ def get_error_metrics(df,
     accuracy_list = []  # accuracy absolute error
     preds_dict = {}
 
-    # Add lags up to N number of days to use as features
-    df = add_lags(df, N, ['adj_close'])
-
-    # Get mean and std dev at timestamp t using values from t-1, ..., t-N
-    df = get_mov_avg_std(df, 'adj_close', N)
-
-    # Do scaling
-    df = do_scaling(df, N)
+    if config.ADD_LAGS == "adj_close":
+        # Get mean and std dev at timestamp t using values from t-1, ..., t-N
+        df = get_mov_avg_std(df, config.ADD_LAGS, N)
+        # Do scaling
+        df = do_scaling(df, N)
 
     # Get list of features
-    features_ex_adj_close = [
-        'year',
-        'month',
-        'week',
-        'day',
-        'dayofweek',
-        'dayofyear',
-        'is_month_end',
-        'is_month_start',
-        'is_quarter_end',
-        'is_quarter_start',
-        'is_year_end'
-    ]
-    features = features_ex_adj_close  # features contain all features, including adj_close_lags
+    """
+    df_feature =  pd.read_csv('DF_FEATURE_LIST.csv')
+    feature_ex = df_feature['attr'].tolist()
+    features = df_feature['attr'].tolist()  # features contain all features, including adj_close_lags
     for n in range(N, 0, -1):
-        features.append("adj_close_scaled_lag_" + str(n))
+        if config.ADD_LAGS == "adj_close":
+            features.append("adj_close_scaled_lag_" + str(n))
+        else:
+            features.append(config.ADD_LAGS + "_lag_" + str(n))
+    """
 
+    df_feature = pd.read_csv('DF_FEATURE_LIST.csv')
+    features = df_feature['attr'].tolist()
+    feature_ex = df_feature['attr'].tolist()
     for i in range(train_size, len(df) - H + 1, int(H / 2)):
         # Split into train and test
         train = df[i - train_size:i].copy()
@@ -166,16 +162,25 @@ def get_error_metrics(df,
 
         # Split into X and y
         X_train_scaled = train[features]
-        y_train_scaled = train['adj_close_scaled']
-        X_test_ex_adj_close = test[features_ex_adj_close]
-        y_test = test['adj_close']
-        prev_vals = train[-N:]['adj_close'].to_numpy()
-        prev_mean_val = test.iloc[0]['adj_close_mean']
-        prev_std_val = test.iloc[0]['adj_close_std']
+        if config.ADD_LAGS == "adj_close":
+            y_train_scaled = train['adj_close_scaled']
+            X_test_ex_adj_close = test[features_ex_adj_close]
+            y_test = test['adj_close']
+            prev_vals = train[-N:]['adj_close'].to_numpy()
+            prev_mean_val = test.iloc[0]['adj_close_mean']
+            prev_std_val = test.iloc[0]['adj_close_std']
+        else:
+            y_train_scaled = train[config.ADD_LAGS]
+            X_test = test[feature_ex]
+            y_test = test[config.ADD_LAGS]
+            prev_vals = train[-N:][config.ADD_LAGS].to_numpy()
+            prev_mean_val = 0
+            prev_std_val = 0
+
 
         rmse, mape, mae, accuracy, est, _ = train_pred_eval_model(X_train_scaled,
                                                                   y_train_scaled,
-                                                                  X_test_ex_adj_close,
+                                                                  X_test,
                                                                   y_test,
                                                                   N,
                                                                   H,
@@ -249,28 +254,47 @@ def train_pred_eval_model(X_train_scaled,
         est                : predicted values. Same length as y_test
     '''
 
-    model = XGBRegressor(objective='reg:squarederror',
-                         seed=config.MODEL_SEED,
-                         n_estimators=int(n_estimators),
-                         max_depth=int(max_depth),
-                         learning_rate=learning_rate,
-                         min_child_weight=min_child_weight,
-                         subsample=subsample,
-                         colsample_bytree=colsample_bytree,
-                         colsample_bylevel=colsample_bylevel,
-                         gamma=gamma)
+    if(config.ADD_LAGS == "adj_close"):
+        model = XGBRegressor(objective='reg:squarederror',
+                             seed=config.MODEL_SEED,
+                             n_estimators=int(n_estimators),
+                             max_depth=int(max_depth),
+                             learning_rate=learning_rate,
+                             min_child_weight=min_child_weight,
+                             subsample=subsample,
+                             colsample_bytree=colsample_bytree,
+                             colsample_bylevel=colsample_bylevel,
+                             gamma=gamma)
+    else:
+        model = XGBClassifier(objective='binary:logistic',
+                              verbosity=0,
+                              seed=config.MODEL_SEED,
+                              n_estimators=int(n_estimators),
+                              max_depth=int(max_depth),
+                              learning_rate=learning_rate,
+                              min_child_weight=min_child_weight,
+                              subsample=subsample,
+                              colsample_bytree=colsample_bytree,
+                              colsample_bylevel=colsample_bylevel,
+                              gamma=gamma)
 
     # Train the model
     model.fit(X_train_scaled, y_train_scaled)
 
     # Get predicted labels and scale back to original range
     est = pred_xgboost(model, X_test_ex_adj_close, N, H, prev_vals, prev_mean_val, prev_std_val)
-
+    est_series = pd.Series(est)
     # Calculate RMSE, MAPE, MAE
-    rmse = get_rmse(y_test, est)
-    mape = get_mape(y_test, est)
-    mae = get_mae(y_test, est)
-    accuracy = get_accuracy_trend(y_test, est)
+    if(config.ADD_LAGS == "adj_close"):
+        rmse = get_rmse(y_test, est)
+        mape = get_mape(y_test, est)
+        mae = get_mae(y_test, est)
+        accuracy = get_accuracy_trend(y_test, est)
+    else:
+        rmse = 0
+        mape = 0
+        mae = 0
+        accuracy = accuracy_score(y_test, est_series)
 
     return rmse, mape, mae, accuracy, est, model.feature_importances_
 
@@ -307,32 +331,22 @@ def get_error_metrics_one_pred(df,
     Outputs
         rmse, mape, mae, predictions
     """
-    # Add lags up to N number of days to use as features
-    df = add_lags(df, N, ['adj_close'])
 
-    # Get mean and std dev at timestamp t using values from t-1, ..., t-N
-    df = get_mov_avg_std(df, 'adj_close', N)
-
-    # Do scaling
-    df = do_scaling(df, N)
+    if config.ADD_LAGS == "adj_close":
+        # Get mean and std dev at timestamp t using values from t-1, ..., t-N
+        df = get_mov_avg_std(df, config.ADD_LAGS, N)
+        # Do scaling
+        df = do_scaling(df, N)
 
     # Get list of features
-    features_ex_adj_close = [
-        'year',
-        'month',
-        'week',
-        'day',
-        'dayofweek',
-        'dayofyear'
-        #'is_month_end',
-        #'is_month_start',
-        #"'is_quarter_end',
-        #'is_quarter_start',
-        #'is_year_end'
-    ]
-    features = features_ex_adj_close  # features contain all features, including adj_close_lags
+    df_feature =  pd.read_csv('DF_FEATURE_LIST.csv')
+    feature_ex = df_feature['Feature'].tolist()
+    features = df_feature['Feature'].tolist()  # features contain all features, including adj_close_lags
     for n in range(N, 0, -1):
-        features.append("adj_close_scaled_lag_" + str(n))
+        if config.ADD_LAGS == "adj_close":
+            features.append("adj_close_scaled_lag_" + str(n))
+        else:
+            features.append(config.ADD_LAGS + "_lag_" + str(n))
 
     # Split into train and test
     train = df[:train_size].copy()
@@ -342,13 +356,22 @@ def get_error_metrics_one_pred(df,
     train.dropna(axis=0, how='any', inplace=True)
 
     # Split into X and y
-    X_train_scaled = train[features]
-    y_train_scaled = train['adj_close_scaled']
-    X_test_ex_adj_close = test[features_ex_adj_close]
-    y_test = test['adj_close']
-    prev_vals = train[-N:]['adj_close'].to_numpy()
-    prev_mean_val = test.iloc[0]['adj_close_mean']
-    prev_std_val = test.iloc[0]['adj_close_std']
+    if config.ADD_LAGS == "adj_close":
+        X_train_scaled = train[features]
+        y_train_scaled = train['adj_close_scaled']
+        X_test_ex_adj_close = test[features_ex_adj_close]
+        y_test = test['adj_close']
+        prev_vals = train[-N:]['adj_close'].to_numpy()
+        prev_mean_val = test.iloc[0]['adj_close_mean']
+        prev_std_val = test.iloc[0]['adj_close_std']
+    else:
+        X_train_scaled = train[features]
+        y_train_scaled = train[config.ADD_LAGS]
+        X_test_ex_adj_close = test[feature_ex]
+        y_test = test[config.ADD_LAGS]
+        prev_vals = train[-N:][config.ADD_LAGS].to_numpy()
+        prev_mean_val = 0
+        prev_std_val = 0
 
     rmse, mape, mae, accuracy, est, feature_importances = train_pred_eval_model(X_train_scaled,
                                                                                 y_train_scaled,
@@ -404,32 +427,22 @@ def get_error_metrics_GS(df,
     Outputs
         rmse, mape, mae, predictions
     """
-    # Add lags up to N number of days to use as features
-    df = add_lags(df, N, ['adj_close'])
-
-    # Get mean and std dev at timestamp t using values from t-1, ..., t-N
-    df = get_mov_avg_std(df, 'adj_close', N)
-
-    # Do scaling
-    df = do_scaling(df, N)
+    if config.ADD_LAGS == "adj_close":
+        # Get mean and std dev at timestamp t using values from t-1, ..., t-N
+        df = get_mov_avg_std(df, config.ADD_LAGS, N)
+        # Do scaling
+        df = do_scaling(df, N)
 
     # Get list of features
-    features_ex_adj_close = [
-        'year',
-        'month',
-        'week',
-        'day',
-        'dayofweek',
-        'dayofyear',
-        'is_month_end',
-        'is_month_start',
-        'is_quarter_end',
-        'is_quarter_start',
-        'is_year_end'
-    ]
-    features = features_ex_adj_close  # features contain all features, including adj_close_lags
+    df_feature =  pd.read_csv('DF_FEATURE_LIST.csv')
+    feature_ex = df_feature['Feature'].tolist()
+    features = df_feature['Feature'].tolist()  # features contain all features, including adj_close_lags
+
     for n in range(N, 0, -1):
-        features.append("adj_close_scaled_lag_" + str(n))
+        if config.ADD_LAGS == "adj_close":
+            features.append("adj_close_scaled_lag_" + str(n))
+        else:
+            features.append(config.ADD_LAGS + "_lag_" + str(n))
 
     # Split into train and test
     train = df[:train_size].copy()
@@ -439,13 +452,22 @@ def get_error_metrics_GS(df,
     train.dropna(axis=0, how='any', inplace=True)
 
     # Split into X and y
-    X_train_scaled = train[features]
-    y_train_scaled = train['adj_close_scaled']
-    X_test_ex_adj_close = test[features_ex_adj_close]
-    y_test = test['adj_close']
-    prev_vals = train[-N:]['adj_close'].to_numpy()
-    prev_mean_val = test.iloc[0]['adj_close_mean']
-    prev_std_val = test.iloc[0]['adj_close_std']
+    if config.ADD_LAGS == "adj_close":
+        X_train_scaled = train[features]
+        y_train_scaled = train['adj_close_scaled']
+        X_test_ex_adj_close = test[features_ex_adj_close]
+        y_test = test['adj_close']
+        prev_vals = train[-N:]['adj_close'].to_numpy()
+        prev_mean_val = test.iloc[0]['adj_close_mean']
+        prev_std_val = test.iloc[0]['adj_close_std']
+    else:
+        X_train_scaled = train[features]
+        y_train_scaled = train[config.ADD_LAGS]
+        X_test_ex_adj_close = test[feature_ex]
+        y_test = test[config.ADD_LAGS]
+        prev_vals = train[-N:][config.ADD_LAGS].to_numpy()
+        prev_mean_val = 0
+        prev_std_val = 0
 
     rmse, mape, mae, accuracy, est = train_pred_eval_model_GS(X_train_scaled,
                                                               y_train_scaled,
@@ -560,50 +582,96 @@ def train_pred_eval_model_GS(X_train_scaled,
 
 def get_accuracy_trends(df_y_test, df_prediction):
     trend_sum = 0
-    for i in range(1,len(df_y_test), 1):
-        trend_day_test = df_y_test['adj_close'].values[i] - df_y_test['adj_close'].values[0]
-        if(trend_day_test >= 0):
-            trend_day_test = 1
-        else:
-            trend_day_test = 0
 
-        trend_day_pred = df_prediction['adj_close'].values[i] - df_prediction['adj_close'].values[0]
-
-        if(trend_day_pred >= 0):
-            trend_day_pred = 1
-        else:
-            trend_day_pred = 0
-
-        if(trend_day_test == trend_day_pred):
-            trend_day = 1
-        else:
-            trend_day = 0
-
-        if(i == 1):
-            trend_day_first = trend_day
-            if(trend_day_test > 0):
-                first_trend_test_up_down  = 'up'
+    if config.ADD_LAGS == "adj_close":
+        for i in range(1,len(df_y_test), 1):
+            trend_day_test = df_y_test['adj_close'].values[i] - df_y_test['adj_close'].values[0]
+            if(trend_day_test >= 0):
+                trend_day_test = 1
             else:
-                first_trend_test_up_down = 'down'
-            if (trend_day_pred > 0):
-                first_trend_pred_up_down = 'up'
+                trend_day_test = 0
+
+            trend_day_pred = df_prediction['adj_close'].values[i] - df_prediction['adj_close'].values[0]
+
+            if(trend_day_pred >= 0):
+                trend_day_pred = 1
             else:
-                first_trend_pred_up_down = 'down'
+                trend_day_pred = 0
 
-        if(i == len(df_y_test) - 1):
-            trend_day_end = trend_day
-            if(trend_day_test > 0):
-                end_trend_test_up_down  = 'up'
+            if(trend_day_test == trend_day_pred):
+                trend_day = 1
             else:
-                end_trend_test_up_down = 'down'
-            if (trend_day_pred > 0):
-                end_trend_pred_up_down = 'up'
+                trend_day = 0
+
+            if(i == 1):
+                trend_day_first = trend_day
+                if(trend_day_test > 0):
+                    first_trend_test_up_down  = 'up'
+                else:
+                    first_trend_test_up_down = 'down'
+                if (trend_day_pred > 0):
+                    first_trend_pred_up_down = 'up'
+                else:
+                    first_trend_pred_up_down = 'down'
+
+            if(i == len(df_y_test) - 1):
+                trend_day_end = trend_day
+                if(trend_day_test > 0):
+                    end_trend_test_up_down  = 'up'
+                else:
+                    end_trend_test_up_down = 'down'
+                if (trend_day_pred > 0):
+                    end_trend_pred_up_down = 'up'
+                else:
+                    end_trend_pred_up_down = 'down'
+
+            trend_sum = trend_sum + trend_day
+
+        trend_all_percent = round(trend_sum / len(df_y_test) * 100, 2)
+    else:
+        for i in range(1, len(df_y_test), 1):
+            trend_day_test = df_y_test['adj_close'].values[i] - df_y_test['adj_close'].values[0]
+            if (trend_day_test >= 0):
+                trend_day_test = 1
             else:
-                end_trend_pred_up_down = 'down'
+                trend_day_test = 0
 
-        trend_sum = trend_sum + trend_day
+            trend_day_pred = df_prediction['adj_close'].values[i] - df_prediction['adj_close'].values[0]
 
-    trend_all_percent = round(trend_sum / len(df_y_test) * 100, 2)
+            if (trend_day_pred >= 0):
+                trend_day_pred = 1
+            else:
+                trend_day_pred = 0
 
+            if (trend_day_test == trend_day_pred):
+                trend_day = 1
+            else:
+                trend_day = 0
+
+            if (i == 1):
+                trend_day_first = trend_day
+                if (trend_day_test > 0):
+                    first_trend_test_up_down = 'up'
+                else:
+                    first_trend_test_up_down = 'down'
+                if (trend_day_pred > 0):
+                    first_trend_pred_up_down = 'up'
+                else:
+                    first_trend_pred_up_down = 'down'
+
+            if (i == len(df_y_test) - 1):
+                trend_day_end = trend_day
+                if (trend_day_test > 0):
+                    end_trend_test_up_down = 'up'
+                else:
+                    end_trend_test_up_down = 'down'
+                if (trend_day_pred > 0):
+                    end_trend_pred_up_down = 'up'
+                else:
+                    end_trend_pred_up_down = 'down'
+
+            trend_sum = trend_sum + trend_day
+
+        trend_all_percent = round(trend_sum / len(df_y_test) * 100, 2)
 
     return trend_day_first, trend_day_end, trend_all_percent, first_trend_test_up_down, first_trend_pred_up_down, end_trend_test_up_down, end_trend_pred_up_down

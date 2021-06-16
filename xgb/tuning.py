@@ -6,12 +6,14 @@ import config
 
 from collections import defaultdict
 from error import get_error_metrics
+from init import init_pred_day_list
 from init import init_opt_param
 from plot import plot_error_rate
 
 def tuning_param(df, tic, OUT_DIR):
 
     init_opt_param()
+    init_pred_day_list(df)
 
     n_estimators_opt_param, max_depth_opt_param = get_opt_param_n_estimators_max_depth(df, tic, OUT_DIR)
     #df_param = pd.DataFrame(list(zip(n_estimators_opt_param, max_depth_opt_param)), columns =['n_estimators', 'max_depth'])
@@ -43,7 +45,8 @@ def tuning_param(df, tic, OUT_DIR):
 def get_opt_param_n_estimators_max_depth(df, tic, OUT_DIR):
 
     for pred_day in config.PRED_DAY_LIST:
-        print("Predicting on day %d, date %s, with forecast horizon H = %d" % (pred_day, df.iloc[pred_day]['date'], config.H))
+        #print("Predicting on day %d, date %s, with forecast horizon H = %d" % (pred_day, df.iloc[pred_day]['date'], config.H))
+        print("Predicting on day %d, with forecast horizon H = %d" % (pred_day, config.H))
 
         train = df[pred_day - config.TRAIN_VAL_SIZE:pred_day - config.VAL_SIZE].copy()
         val = df[pred_day - config.VAL_SIZE:pred_day].copy()
@@ -64,8 +67,7 @@ def get_opt_param_n_estimators_max_depth(df, tic, OUT_DIR):
 
         error_rate = defaultdict(list)
 
-        for i in param_list:
-            param = i
+        for param in param_list:
             for param2 in param2_list:
                 rmse_mean, mape_mean, mae_mean, accuracy_mean, _ = get_error_metrics(train_val,
                                                                                      config.TRAIN_SIZE,
@@ -103,20 +105,24 @@ def get_opt_param_n_estimators_max_depth(df, tic, OUT_DIR):
     n_estimators_opt_param = []
     max_depth_opt_param = []
 
-    # Get optimum value for param and param2, using RMSE
-    temp = error_rate[error_rate['rmse'] == error_rate['rmse'].min()]
-    config.OPT_N_ESTIMATORS = temp['n_estimators'].values[0]
-    config.OPT_MAX_DEPTH = temp['max_depth'].values[0]
-    n_estimators_opt_param.append(temp['n_estimators'].values[0])
-    max_depth_opt_param.append(temp['max_depth'].values[0])
+    if error_rate['rmse'].max() > 0:
+        # Get optimum value for param and param2, using RMSE
+        temp = error_rate[error_rate['rmse'] == error_rate['rmse'].min()]
+        config.OPT_N_ESTIMATORS = temp['n_estimators'].values[0]
+        config.OPT_MAX_DEPTH = temp['max_depth'].values[0]
+        n_estimators_opt_param.append(temp['n_estimators'].values[0])
+        max_depth_opt_param.append(temp['max_depth'].values[0])
 
-    # Get optimum value for param and param2, using MAPE
-    temp = error_rate[error_rate['mape'] == error_rate['mape'].min()]
-    n_estimators_opt_param.append(temp['n_estimators'].values[0])
-    max_depth_opt_param.append(temp['max_depth'].values[0])
+    if error_rate['mape'].max() > 0:
+        # Get optimum value for param and param2, using MAPE
+        temp = error_rate[error_rate['mape'] == error_rate['mape'].min()]
+        n_estimators_opt_param.append(temp['n_estimators'].values[0])
+        max_depth_opt_param.append(temp['max_depth'].values[0])
 
     # Get optimum value for param and param2, using ACCURACY
     temp = error_rate[error_rate['accuracy'] == error_rate['accuracy'].max()]
+    config.OPT_N_ESTIMATORS = temp['n_estimators'].values[0]
+    config.OPT_MAX_DEPTH = temp['max_depth'].values[0]
     n_estimators_opt_param.append(temp['n_estimators'].values[0])
     max_depth_opt_param.append(temp['max_depth'].values[0])
 
@@ -125,8 +131,7 @@ def get_opt_param_n_estimators_max_depth(df, tic, OUT_DIR):
 
 def get_opt_param_learning_rate_min_child_weight(df, tic, OUT_DIR):
     for pred_day in config.PRED_DAY_LIST:
-        print("Predicting on day %d, date %s, with forecast horizon H = %d" % (
-        pred_day, df.iloc[pred_day]['date'], config.H))
+        print("Predicting on day %d, with forecast horizon H = %d" % (pred_day, config.H))
 
         train = df[pred_day - config.TRAIN_VAL_SIZE:pred_day - config.VAL_SIZE].copy()
         val = df[pred_day - config.VAL_SIZE:pred_day].copy()
@@ -188,20 +193,24 @@ def get_opt_param_learning_rate_min_child_weight(df, tic, OUT_DIR):
     learning_rate_opt_param = []
     min_child_weight_opt_param = []
 
-    # Get optimum value for param and param2, using RMSE
-    temp = error_rate[error_rate['rmse'] == error_rate['rmse'].min()]
-    config.OPT_LEARNING_RATE = temp['learning_rate'].values[0]
-    config.OPT_MIN_CHILD_WEIGHT = temp['min_child_weight'].values[0]
-    learning_rate_opt_param.append(temp['learning_rate'].values[0])
-    min_child_weight_opt_param.append(temp['min_child_weight'].values[0])
+    if error_rate['rmse'].max() > 0:
+        # Get optimum value for param and param2, using RMSE
+        temp = error_rate[error_rate['rmse'] == error_rate['rmse'].min()]
+        config.OPT_LEARNING_RATE = temp['learning_rate'].values[0]
+        config.OPT_MIN_CHILD_WEIGHT = temp['min_child_weight'].values[0]
+        learning_rate_opt_param.append(temp['learning_rate'].values[0])
+        min_child_weight_opt_param.append(temp['min_child_weight'].values[0])
 
-    # Get optimum value for param and param2, using MAPE
-    temp = error_rate[error_rate['mape'] == error_rate['mape'].min()]
-    learning_rate_opt_param.append(temp['learning_rate'].values[0])
-    min_child_weight_opt_param.append(temp['min_child_weight'].values[0])
+    if error_rate['mape'].max() > 0:
+        # Get optimum value for param and param2, using MAPE
+        temp = error_rate[error_rate['mape'] == error_rate['mape'].min()]
+        learning_rate_opt_param.append(temp['learning_rate'].values[0])
+        min_child_weight_opt_param.append(temp['min_child_weight'].values[0])
 
     # Get optimum value for param and param2, using MAPE
     temp = error_rate[error_rate['accuracy'] == error_rate['accuracy'].max()]
+    config.OPT_LEARNING_RATE = temp['learning_rate'].values[0]
+    config.OPT_MIN_CHILD_WEIGHT = temp['min_child_weight'].values[0]
     learning_rate_opt_param.append(temp['learning_rate'].values[0])
     min_child_weight_opt_param.append(temp['min_child_weight'].values[0])
 
@@ -210,8 +219,7 @@ def get_opt_param_learning_rate_min_child_weight(df, tic, OUT_DIR):
 
 def get_opt_param_subsample_gamma(df, tic, OUT_DIR):
     for pred_day in config.PRED_DAY_LIST:
-        print("Predicting on day %d, date %s, with forecast horizon H = %d" % (
-        pred_day, df.iloc[pred_day]['date'], config.H))
+        print("Predicting on day %d, with forecast horizon H = %d" % (pred_day, config.H))
 
         train = df[pred_day - config.TRAIN_VAL_SIZE:pred_day - config.VAL_SIZE].copy()
         val = df[pred_day - config.VAL_SIZE:pred_day].copy()
@@ -274,20 +282,24 @@ def get_opt_param_subsample_gamma(df, tic, OUT_DIR):
     subsample_opt_param = []
     gamma_opt_param = []
 
-    # Get optimum value for param and param2, using RMSE
-    temp = error_rate[error_rate['rmse'] == error_rate['rmse'].min()]
-    config.OPT_SUBSAMPLE = temp['subsample'].values[0]
-    config.OPT_GAMMA = temp['gamma'].values[0]
-    subsample_opt_param.append(temp['subsample'].values[0])
-    gamma_opt_param.append(temp['gamma'].values[0])
+    if error_rate['rmse'].max() > 0:
+        # Get optimum value for param and param2, using RMSE
+        temp = error_rate[error_rate['rmse'] == error_rate['rmse'].min()]
+        config.OPT_SUBSAMPLE = temp['subsample'].values[0]
+        config.OPT_GAMMA = temp['gamma'].values[0]
+        subsample_opt_param.append(temp['subsample'].values[0])
+        gamma_opt_param.append(temp['gamma'].values[0])
 
-    # Get optimum value for param and param2, using MAPE
-    temp = error_rate[error_rate['mape'] == error_rate['mape'].min()]
-    subsample_opt_param.append(temp['subsample'].values[0])
-    gamma_opt_param.append(temp['gamma'].values[0])
+    if error_rate['mape'].max() > 0:
+        # Get optimum value for param and param2, using MAPE
+        temp = error_rate[error_rate['mape'] == error_rate['mape'].min()]
+        subsample_opt_param.append(temp['subsample'].values[0])
+        gamma_opt_param.append(temp['gamma'].values[0])
 
     # Get optimum value for param and param2, using ACCURACY
     temp = error_rate[error_rate['accuracy'] == error_rate['accuracy'].max()]
+    config.OPT_SUBSAMPLE = temp['subsample'].values[0]
+    config.OPT_GAMMA = temp['gamma'].values[0]
     subsample_opt_param.append(temp['subsample'].values[0])
     gamma_opt_param.append(temp['gamma'].values[0])
 
@@ -296,8 +308,7 @@ def get_opt_param_subsample_gamma(df, tic, OUT_DIR):
 
 def get_opt_param_colsample_bytree_colsample_bylevel(df, tic, OUT_DIR):
     for pred_day in config.PRED_DAY_LIST:
-        print("Predicting on day %d, date %s, with forecast horizon H = %d" % (
-        pred_day, df.iloc[pred_day]['date'], config.H))
+        print("Predicting on day %d, with forecast horizon H = %d" % (pred_day, config.H))
 
         train = df[pred_day - config.TRAIN_VAL_SIZE:pred_day - config.VAL_SIZE].copy()
         val = df[pred_day - config.VAL_SIZE:pred_day].copy()
@@ -358,20 +369,24 @@ def get_opt_param_colsample_bytree_colsample_bylevel(df, tic, OUT_DIR):
     colsample_bytree_opt_param = []
     colsample_bylevel_opt_param = []
 
-    # Get optimum value for param and param2, using RMSE
-    temp = error_rate[error_rate['rmse'] == error_rate['rmse'].min()]
-    config.OPT_COLSAMPLE_BYTREE = temp['colsample_bytree'].values[0]
-    config.COLSAMPLE_BYLEVEL_OPT = temp['colsample_bylevel'].values[0]
-    colsample_bytree_opt_param.append(temp['colsample_bytree'].values[0])
-    colsample_bylevel_opt_param.append(temp['colsample_bylevel'].values[0])
+    if error_rate['rmse'].max() > 0:
+        # Get optimum value for param and param2, using RMSE
+        temp = error_rate[error_rate['rmse'] == error_rate['rmse'].min()]
+        config.OPT_COLSAMPLE_BYTREE = temp['colsample_bytree'].values[0]
+        config.COLSAMPLE_BYLEVEL_OPT = temp['colsample_bylevel'].values[0]
+        colsample_bytree_opt_param.append(temp['colsample_bytree'].values[0])
+        colsample_bylevel_opt_param.append(temp['colsample_bylevel'].values[0])
 
-    # Get optimum value for param and param2, using MAPE
-    temp = error_rate[error_rate['mape'] == error_rate['mape'].min()]
-    colsample_bytree_opt_param.append(temp['colsample_bytree'].values[0])
-    colsample_bylevel_opt_param.append(temp['colsample_bylevel'].values[0])
+    if error_rate['mape'].max() > 0:
+        # Get optimum value for param and param2, using MAPE
+        temp = error_rate[error_rate['mape'] == error_rate['mape'].min()]
+        colsample_bytree_opt_param.append(temp['colsample_bytree'].values[0])
+        colsample_bylevel_opt_param.append(temp['colsample_bylevel'].values[0])
 
     # Get optimum value for param and param2, using ACCURACY
     temp = error_rate[error_rate['accuracy'] == error_rate['accuracy'].max()]
+    config.OPT_COLSAMPLE_BYTREE = temp['colsample_bytree'].values[0]
+    config.COLSAMPLE_BYLEVEL_OPT = temp['colsample_bylevel'].values[0]
     colsample_bytree_opt_param.append(temp['colsample_bytree'].values[0])
     colsample_bylevel_opt_param.append(temp['colsample_bylevel'].values[0])
 

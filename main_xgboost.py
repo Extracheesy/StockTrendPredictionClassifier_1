@@ -16,6 +16,7 @@ from plot import plot_seasonal
 from plot import plot_price
 from indicators import add_indicator
 from tools import filter_df_date_year
+from tools import filter_df_rm_n_last_raw
 from tools import format_df
 from corr import get_corr_matrix
 from predict import predict_df_before_tuning
@@ -23,7 +24,7 @@ from predict import predict_df_before_tuning_one_pred
 from predict import predict_df_val_tuned_param
 from predict import predict_tuning_param
 from predict import predict_test_set_with_tuned_param
-
+from dataset import balance_df_dataset
 
 # Mute sklearn warnings
 from warnings import simplefilter
@@ -38,6 +39,10 @@ if (os.path.isdir(config.TRACES_DIR) == False):
 if (os.path.isdir(config.RESULTS_DIR) == False):
     print("new results directory: ", config.RESULTS_DIR)
     os.mkdir(config.RESULTS_DIR)
+
+if (os.path.isdir(config.FEATURE_DIRECTORY) == False):
+    print("new traces directory: ", config.FEATURE_DIRECTORY)
+    os.mkdir(config.FEATURE_DIRECTORY)
 
 LIST_TICKER_DJI = get_df_DJI()
 
@@ -69,10 +74,15 @@ for tic in LIST_TICKER_DJI['Symbol']:
     if (config.ADD_INDICATORS == True):
         df = add_indicator(df)
 
-    df = filter_df_date_year(df, config.START_YEAR)
+    if (config.FILTERS == True):
+        df = filter_df_date_year(df, config.START_YEAR)
+        df = filter_df_rm_n_last_raw(df, config.H)
 
     if(config.PLOT_PRICE == True):
         plot_price(df, tic, OUT_DIR)
+
+    if (config.BALANCE_DATASET == True):
+        df = balance_df_dataset(df)
 
     if (config.CORR_MATRIX == True):
         get_corr_matrix(df, tic, OUT_DIR)

@@ -60,16 +60,6 @@ READ_DATA_FILE = True
 #ORIGIN_CODE = True
 ORIGIN_CODE = False
 
-TRACES_DIR = "./traces/"
-RESULTS_DIR = TRACES_DIR + "results/"
-
-if (os.path.isdir(TRACES_DIR) == False):
-    print("new traces directory: ", TRACES_DIR)
-    os.mkdir(TRACES_DIR)
-
-if (os.path.isdir(RESULTS_DIR) == False):
-    print("new results directory: ", RESULTS_DIR)
-    os.mkdir(RESULTS_DIR)
 
 # %% [code]
 def relative_strength_idx(df, n=14):

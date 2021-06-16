@@ -426,7 +426,7 @@ def get_error_metrics(df,
     preds_dict = {}
 
     # Add lags up to N number of days to use as features
-    df = add_lags(df, N, ['adj_close'])
+    #df = add_lags(df, N, ['adj_close'])
 
     # Get mean and std dev at timestamp t using values from t-1, ..., t-N
     df = get_mov_avg_std(df, 'adj_close', N)
@@ -536,7 +536,7 @@ def get_error_metrics_one_pred(df,
         rmse, mape, mae, predictions
     """
     # Add lags up to N number of days to use as features
-    df = add_lags(df, N, ['adj_close'])
+    #df = add_lags(df, N, ['adj_close'])
 
     # Get mean and std dev at timestamp t using values from t-1, ..., t-N
     df = get_mov_avg_std(df, 'adj_close', N)

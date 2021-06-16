@@ -64,15 +64,14 @@ def run_test_set_with_tuned_param(df, tic, OUT_DIR, df_summary):
                                                                                                                                                                        colsample_bylevel=colsample_bylevel_opt,
                                                                                                                                                                        gamma=gamma_opt)
 
-
-
-            val = df['adj_close'].values[pred_day - 1]
-            df_prediction = pd.DataFrame({'adj_close': [val]})
-            df_prediction_tmp = pd.DataFrame(est, columns=['adj_close'])
+            val = df[config.ADD_LAGS].values[pred_day - 1]
+            df_prediction = pd.DataFrame({config.ADD_LAGS: [val]})
+            df_prediction_tmp = pd.DataFrame(est, columns=[config.ADD_LAGS])
             df_prediction = df_prediction.append(df_prediction_tmp)
             df_prediction = df_prediction.reset_index(drop=True)
 
-            serie_y_test = df[pred_day - 1 : pred_day + config.H]['adj_close']
+            serie_y_test = df[pred_day - 1: pred_day + config.H][config.ADD_LAGS]
+
             df_y_test = pd.DataFrame(serie_y_test)
             df_y_test = df_y_test.reset_index(drop=True)
 

@@ -9,3 +9,19 @@ def init_opt_param():
     config.OPT_COLSAMPLE_BYTREE = config.COLSAMPLE_BYTREE
     config.OPT_COLSAMPLE_BYLEVEL = config.COLSAMPLE_BYLEVEL
     config.OPT_GAMMA = config.GAMMA
+
+
+def init_pred_day_list(df):
+    config.PRED_DAY_LIST = []
+
+    #half = int(len(df) / 2)
+    half = config.TRAIN_VAL_SIZE
+    half_10 = int( (len(df) - half) / config.PRED_DAY_NB_ITEM)
+
+    for iter in range(config.PRED_DAY_NB_ITEM + 1):
+        if(iter == config.PRED_DAY_NB_ITEM):
+            item = half + iter * half_10  - config.H
+        else:
+            item = half + iter * half_10
+        config.PRED_DAY_LIST.append(item)
+

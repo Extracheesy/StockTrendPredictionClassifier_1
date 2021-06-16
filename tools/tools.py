@@ -13,6 +13,11 @@ def filter_df_date_year(df, year):
     df.loc[:, 'year'] = LabelEncoder().fit_transform(df['year'])
     return df
 
+def filter_df_rm_n_last_raw(df, n):
+    df = df.iloc[:-n , :].copy()
+
+    return df
+
 def format_df(df):
     # Change all column headings to be lower case, and remove spacing
     df.columns = [str(x).lower().replace(' ', '_') for x in df.columns]
@@ -20,7 +25,14 @@ def format_df(df):
     add_datepart(df, 'date', drop=False)
     df.drop('Elapsed', axis=1, inplace=True)  # don't need this
     df.columns = [str(x).lower().replace(' ', '_') for x in df.columns]
-    df = add_lags(df, config.N, ['adj_close'])
+
+    df['is_month_end'] = df['is_month_end'].astype(int)
+    df['is_month_start'] = df['is_month_start'].astype(int)
+    df['is_quarter_end'] = df['is_quarter_end'].astype(int)
+    df['is_quarter_start'] = df['is_quarter_start'].astype(int)
+    df['is_year_end'] = df['is_year_end'].astype(int)
+    df['is_year_start'] = df['is_year_start'].astype(int)
+
     return df
 
 def drop_df_columns(df):
@@ -54,6 +66,7 @@ def add_datepart(df, field_name, prefix=None, drop=True, time=False):
     mask = ~field.isna()
     df[prefix + 'Elapsed'] = np.where(mask, field.values.astype(np.int64) // 10 ** 9, np.nan)
     if drop: df.drop(field_name, axis=1, inplace=True)
+
     return df
 
 def add_lags(df, N, lag_cols):
@@ -82,7 +95,9 @@ def add_lags(df, N, lag_cols):
         train_shift = train_shift.rename(columns=foo)
 
         df_w_lags = pd.merge(df_w_lags, train_shift, on=merging_keys, how='left')  # .fillna(0)
+
     del train_shift
+    del df_w_lags['order_day']
 
     return df_w_lags
 
@@ -137,5 +152,35 @@ def addRow(df,ls):
     newRow = pd.DataFrame(np.array(ls).reshape(1,numEl), columns = list(df.columns))
 
     df = df.append(newRow, ignore_index=True)
+
+    return df
+
+def drop_unused_df_feature(df):
+    """
+    df = df.drop('is_month_end', axis=1)
+    df = df.drop('is_month_start', axis=1)
+    df = df.drop('is_quarter_end', axis=1)
+    df = df.drop('is_quarter_start', axis=1)
+    df = df.drop('is_year_end', axis=1)
+    df = df.drop('is_year_start', axis=1)
+
+    df = df.drop('open', axis=1)
+    df = df.drop('close', axis=1)
+    df = df.drop('low', axis=1)
+    df = df.drop('high', axis=1)
+    df = df.drop('adj_close', axis=1)
+    """
+
+    df = df.drop('date', axis=1)
+
+    df = df.drop('target_day+1', axis=1)
+    df = df.drop('target_day+2', axis=1)
+    df = df.drop('target_day+3', axis=1)
+    df = df.drop('target_day+4', axis=1)
+    df = df.drop('target_day+5', axis=1)
+
+
+    #for i in range(1, config.N + 1, 1):
+    #    df = df.drop('trend_lag_' + str(i), axis=1)
 
     return df
