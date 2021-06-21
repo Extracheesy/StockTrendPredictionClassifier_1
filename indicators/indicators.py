@@ -4,24 +4,31 @@ import numpy as np
 
 from tools import add_lags
 
+from ta.trend import stc
+
 import talib
 
 def add_RSI(df, n=14):
 
     df['rsi'] = talib.RSI(df.close.values, timeperiod=n)
 
+    df['rsi_b'] = df['rsi']
+
+    df.loc[df['rsi_b'] <= 30, 'rsi_b'] = int(0)
+    df.loc[df['rsi_b'] >= 70, 'rsi_b'] = int(1)
+    df.loc[(df['rsi_b'] > 30) & (df['rsi_b'] < 70), 'rsi_b'] = int(2)
+
     return df
 
 def add_SMA(df):
     df['SMA_5'] = df['close'].rolling(window = 5).mean()
     df['SMA_10'] = df['close'].rolling(window = 10).mean()
-    #df['SMA_10'] = df['close'].rolling(10).mean().shift()
     df['SMA_15'] = df['close'].rolling(window = 15).mean()
     df['SMA_20'] = df['close'].rolling(window = 20).mean()
-    df['SMA_30'] = df['close'].rolling(window = 30).mean()
-    df['SMA_50'] = df['close'].rolling(window = 50).mean()
-    df['SMA_100'] = df['close'].rolling(window = 100).mean()
-    df['SMA_200'] = df['close'].rolling(window = 200).mean()
+    #df['SMA_30'] = df['close'].rolling(window = 30).mean()
+    #df['SMA_50'] = df['close'].rolling(window = 50).mean()
+    #df['SMA_100'] = df['close'].rolling(window = 100).mean()
+    #df['SMA_200'] = df['close'].rolling(window = 200).mean()
 
     return df
 
@@ -29,8 +36,8 @@ def add_EMA(df):
     df['EMA_10'] = df.close.ewm(span=10).mean().fillna(0)
     df['EMA_20'] = df.close.ewm(span=20).mean().fillna(0)
     df['EMA_50'] = df.close.ewm(span=50).mean().fillna(0)
-    df['EMA_100'] = df.close.ewm(span=100).mean().fillna(0)
-    df['EMA_200'] = df.close.ewm(span=200).mean().fillna(0)
+    #df['EMA_100'] = df.close.ewm(span=100).mean().fillna(0)
+    #df['EMA_200'] = df.close.ewm(span=200).mean().fillna(0)
 
     return df
 
@@ -79,6 +86,22 @@ def add_WILLIAMS(df, n=14):
                                     df.close.values, n)
     return df
 
+def add_STC(df, n=14):
+    df['STC'] = stc(df['close'],
+                    window_slow=50,
+                    window_fast=23,
+                    cycle=10,
+                    smooth1=3,
+                    smooth2=3,
+                    fillna=False)
+
+    df['STC_b'] = df['STC']
+
+    df.loc[df['STC_b'] <= 25, 'STC_b'] = int(0)
+    df.loc[df['STC_b'] >= 75, 'STC_b'] = int(1)
+    df.loc[(df['STC_b'] > 25) & (df['STC_b'] < 75), 'STC_b'] = int(2)
+    return df
+
 def add_STOCHASTIC(df, n=14):
 
     df['14-high'] = df['high'].rolling(n).max()
@@ -108,13 +131,27 @@ def add_trend(df_stock_price):
         target_raw[target_raw <= 0] = int(0)
         df_stock_price.insert(len(df_stock_price.columns), "target_day+" + str(i), target_raw)
 
+    # del df_stock_price["trend"]
+    #df_stock_price["trend"] = df_stock_price["target_day+1"]
+
+    #df_stock_price["trend"] = df_stock_price["trend"].shift(-1)
 
     df_stock_price = df_stock_price.replace([np.inf, -np.inf], np.nan).dropna()
     df_stock_price = df_stock_price.reset_index(drop=True)
 
     return df_stock_price
 
+def add_target(df):
+
+    df['target'] = df[config.PREDICT_TARGET]
+
+    df = df.drop(config.PREDICT_TARGET, axis=1)
+
+    return df
+
 def add_indicator(df):
+
+    df = add_STC(df, 14)
 
     df = add_RSI(df, 14)
     df = add_SMA(df)
@@ -129,7 +166,8 @@ def add_indicator(df):
 
     df = add_trend(df)
     df = add_lags(df, config.N, [config.ADD_LAGS])
+    df = add_target(df)
 
-    #df.to_csv("test_df_full_data.csv")
+    df.to_csv("test_df_full_data_3.csv")
 
     return df

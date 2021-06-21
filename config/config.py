@@ -1,4 +1,4 @@
-N = 21  # for feature at day t, we use lags from t-1, t-2, ..., t-N as features
+N = 5  # for feature at day t, we use lags from t-1, t-2, ..., t-N as features
 #H = 21  # Forecast horizon, in days. Note there are about 252 trading days in a year
 H = 5  # Forecast horizon, in days. Note there are about 252 trading days in a year
 START_YEAR = 2010
@@ -7,7 +7,7 @@ VAL_SIZE = 252  # Use 1 year of data as validation set
 TRAIN_VAL_SIZE = TRAIN_SIZE + VAL_SIZE
 
 PRED_DAY_LIST = [1008, 1050, 1092, 1134, 1176, 1218, 1260, 1302, 1344, 1386, 1428, 1470]
-PRED_DAY_NB_ITEM = 10
+PRED_DAY_NB_ITEM = 3
 PRED_DAY = 1008  # Predict for this day, for the next H-1 days. Note indexing of days start from 0.
 
 TRACES_DIR = "./traces/"
@@ -18,6 +18,11 @@ STOCKS_DJI_DIRECTORY = './Data/Stocks_dji/'
 
 #ADD_LAGS = 'adj_close'
 ADD_LAGS = 'trend'
+#PREDICT_TARGET = 'trend'
+PREDICT_TARGET = 'target_day+1'
+DROP_LAGS = True
+#DROP_LAGS = False
+MIN_FEATURE = 3
 
 BALANCE_DATASET = True
 #BALANCE_DATASET = False
@@ -26,8 +31,8 @@ SMOTE = True
 ADASYN = False
 #ADASYN = False
 
-#CORR_MATRIX = True
-CORR_MATRIX = False
+CORR_MATRIX = True
+#CORR_MATRIX = False
 
 READ_DATA_FILE = True
 #READ_DATA_FILE = False

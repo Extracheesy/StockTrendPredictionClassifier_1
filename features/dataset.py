@@ -11,7 +11,7 @@ from numpy import where
 
 from tools import drop_unused_df_feature
 
-def balance_df_dataset(df):
+def balance_df_dataset(df, target):
     # input DataFrame
     # X →Independent Variable in DataFrame\
     # y →dependent Variable in Pandas DataFrame format
@@ -20,9 +20,9 @@ def balance_df_dataset(df):
 
     data = drop_unused_df_feature(data)
 
-    X = data.drop(config.ADD_LAGS, axis=1)
+    X = data.drop(target, axis=1)
     X_columns = X.columns
-    y = data[config.ADD_LAGS]
+    y = data[target]
 
     X = X.to_numpy()
     y = y.to_numpy()
@@ -35,7 +35,7 @@ def balance_df_dataset(df):
     X, y = oversampling.fit_resample(X, y)
 
     X_df = pd.DataFrame(X, columns = X_columns)
-    y_df = pd.DataFrame(y, columns=[config.ADD_LAGS])
+    y_df = pd.DataFrame(y, columns=[target])
 
     df = pd.concat([X_df, y_df], axis=1)
 

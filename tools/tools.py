@@ -26,13 +26,6 @@ def format_df(df):
     df.drop('Elapsed', axis=1, inplace=True)  # don't need this
     df.columns = [str(x).lower().replace(' ', '_') for x in df.columns]
 
-    df['is_month_end'] = df['is_month_end'].astype(int)
-    df['is_month_start'] = df['is_month_start'].astype(int)
-    df['is_quarter_end'] = df['is_quarter_end'].astype(int)
-    df['is_quarter_start'] = df['is_quarter_start'].astype(int)
-    df['is_year_end'] = df['is_year_end'].astype(int)
-    df['is_year_start'] = df['is_year_start'].astype(int)
-
     return df
 
 def drop_df_columns(df):
@@ -156,7 +149,7 @@ def addRow(df,ls):
     return df
 
 def drop_unused_df_feature(df):
-    """
+
     df = df.drop('is_month_end', axis=1)
     df = df.drop('is_month_start', axis=1)
     df = df.drop('is_quarter_end', axis=1)
@@ -164,23 +157,34 @@ def drop_unused_df_feature(df):
     df = df.drop('is_year_end', axis=1)
     df = df.drop('is_year_start', axis=1)
 
+    df = df.drop('year', axis=1)
+    df = df.drop('month', axis=1)
+    df = df.drop('week', axis=1)
+    df = df.drop('day', axis=1)
+    df = df.drop('dayofweek', axis=1)
+    df = df.drop('dayofyear', axis=1)
+
     df = df.drop('open', axis=1)
     df = df.drop('close', axis=1)
     df = df.drop('low', axis=1)
     df = df.drop('high', axis=1)
     df = df.drop('adj_close', axis=1)
-    """
+    df = df.drop('volume', axis=1)
+
 
     df = df.drop('date', axis=1)
 
-    df = df.drop('target_day+1', axis=1)
+    if (config.PREDICT_TARGET != 'target_day+1'):
+        df = df.drop('target_day+1', axis=1)
     df = df.drop('target_day+2', axis=1)
     df = df.drop('target_day+3', axis=1)
     df = df.drop('target_day+4', axis=1)
     df = df.drop('target_day+5', axis=1)
 
+    if (config.DROP_LAGS == True):
+        for i in range(1, config.N + 1, 1):
+            df = df.drop('trend_lag_' + str(i), axis=1)
 
-    #for i in range(1, config.N + 1, 1):
-    #    df = df.drop('trend_lag_' + str(i), axis=1)
+    df.to_csv("test_df_full_data_after_drop.csv")
 
     return df

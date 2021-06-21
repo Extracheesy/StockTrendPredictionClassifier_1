@@ -1,4 +1,5 @@
 import config
+import pandas as pd
 
 def init_opt_param():
     config.OPT_N_ESTIMATORS = config.N_ESTIMATORS
@@ -24,4 +25,14 @@ def init_pred_day_list(df):
         else:
             item = half + iter * half_10
         config.PRED_DAY_LIST.append(item)
+
+def build_df_importance_feature(df):
+    df_feature = pd.DataFrame(columns = df.columns)
+    df_feature.insert(0, 'results', [])
+    df_feature.insert(0, 'scoring', [])
+    df_feature.insert(0, 'estimator', [])
+
+    #df_feature = df_feature.drop(config.PREDICT_TARGET, axis=1)
+
+    return df_feature
 
