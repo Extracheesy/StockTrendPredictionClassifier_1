@@ -170,10 +170,10 @@ def get_error_metrics(df,
             prev_mean_val = test.iloc[0]['adj_close_mean']
             prev_std_val = test.iloc[0]['adj_close_std']
         else:
-            y_train_scaled = train[config.ADD_LAGS]
+            y_train_scaled = train['target']
             X_test = test[feature_ex]
-            y_test = test[config.ADD_LAGS]
-            prev_vals = train[-N:][config.ADD_LAGS].to_numpy()
+            y_test = test['target']
+            prev_vals = train[-N:]['target'].to_numpy()
             prev_mean_val = 0
             prev_std_val = 0
 

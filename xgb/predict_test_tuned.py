@@ -25,7 +25,7 @@ def run_test_set_with_tuned_param(df, tic, OUT_DIR, df_summary):
 
     df_results = pd.DataFrame(columns=config.LIST_COLUMNS_RESULTS)
 
-    for i in range(0,3,1):
+    for i in range(2,3,1):
         if i == 0:
             df_param = df_param.sort_values(by=['rmse'], ascending=True)
             df_param = df_param.reset_index(drop=True)

@@ -22,7 +22,8 @@ def balance_df_dataset(df, target):
 
     print("balance dataset:")
     print("data len: ", len(data[target]))
-    print("nb 1:", data[target].sum())
+    print("count of 1:", data[target].sum())
+    print("count of 0:", len(data[target]) - data[target].sum())
     print("balance dataset...")
 
     X = data.drop(target, axis=1)
@@ -43,7 +44,8 @@ def balance_df_dataset(df, target):
     y_df = pd.DataFrame(y, columns=[target])
 
     print("data len: ", len(y_df[target]))
-    print("nb 1:", y_df[target].sum())
+    print("count of 1:", y_df[target].sum())
+    print("count of 0:", len(y_df[target]) - y_df[target].sum())
 
     df = pd.concat([X_df, y_df], axis=1)
 

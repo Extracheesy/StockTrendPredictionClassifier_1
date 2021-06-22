@@ -44,7 +44,7 @@ def run_validation_set_with_tuned_param(df, tic, OUT_DIR):
     gamma_opt_param = list(set(gamma_opt_param))
 
     for pred_day in config.PRED_DAY_LIST:
-        print("Day:", pred_day," - Get error metrics on validation set after hyperparameter tuning")
+        print("Day:", pred_day," - Get mixed error metrics on validation set after hyperparameter tuning")
 
         train = df[pred_day - config.TRAIN_VAL_SIZE:pred_day - config.VAL_SIZE].copy()
         val = df[pred_day - config.VAL_SIZE:pred_day].copy()
@@ -53,7 +53,7 @@ def run_validation_set_with_tuned_param(df, tic, OUT_DIR):
 
         iteration = len(n_estimators_opt_param) * len(max_depth_opt_param) * len(learning_rate_opt_param) * len(min_child_weight_opt_param) * len(subsample_opt_param) * len(colsample_bytree_opt_param) * len(colsample_bylevel_opt_param) * len(gamma_opt_param)
         progress_iteration = iteration
-        best_rmse = 100
+        best_accuracy = 0
         for n_estimators_opt in n_estimators_opt_param:
             for max_depth_opt in max_depth_opt_param:
                 for learning_rate_opt in learning_rate_opt_param:
@@ -79,7 +79,7 @@ def run_validation_set_with_tuned_param(df, tic, OUT_DIR):
                                                                                                                                               colsample_bylevel=colsample_bylevel_opt,
                                                                                                                                               gamma=gamma_opt)
 
-                                        if rmse_aft_tuning < best_rmse:
+                                        if best_accuracy < accuracy_aft_tuning:
                                             best_accuracy = accuracy_aft_tuning
                                             best_rmse = rmse_aft_tuning
                                             best_mape = mape_aft_tuning
@@ -130,7 +130,7 @@ def run_validation_set_with_tuned_param(df, tic, OUT_DIR):
         filename = OUT_DIR + tic + "_" + str(pred_day) + "_final_param.csv"
         df_param_final.to_csv(filename)
 
-        plot_preds_after_tuning(train, val, test, train_val, config.H, best_est_dict, tic + str(pred_day), OUT_DIR)
+        #plot_preds_after_tuning(train, val, test, train_val, config.H, best_est_dict, tic + str(pred_day), OUT_DIR)
 
     filename = OUT_DIR + tic + "_final_param.csv"
     df_param_final.to_csv(filename)

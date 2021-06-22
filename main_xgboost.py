@@ -89,22 +89,22 @@ for tic in LIST_TICKER_DJI['Symbol']:
         df_feature = build_df_importance_feature(df)
 
         df_feature = get_corr_matrix(df, df_feature, tic, OUT_DIR, 'XGB', 'accuracy')
-        df_feature = get_corr_matrix(df, df_feature, tic, OUT_DIR, 'XGB', 'jaccard')
+        #df_feature = get_corr_matrix(df, df_feature, tic, OUT_DIR, 'XGB', 'jaccard')
         df_feature = get_corr_matrix(df, df_feature, tic, OUT_DIR, 'XGB', 'f1')
-        df_feature = get_corr_matrix(df, df_feature, tic, OUT_DIR, 'XGB', 'precision')
-        df_feature = get_corr_matrix(df, df_feature, tic, OUT_DIR, 'XGB', 'recall')
+        #df_feature = get_corr_matrix(df, df_feature, tic, OUT_DIR, 'XGB', 'precision')
+        #df_feature = get_corr_matrix(df, df_feature, tic, OUT_DIR, 'XGB', 'recall')
 
-        df_feature = get_corr_matrix(df, df_feature, tic, OUT_DIR, 'Forest', 'precision')
-        df_feature = get_corr_matrix(df, df_feature, tic, OUT_DIR, 'Forest', 'recall')
-        df_feature = get_corr_matrix(df, df_feature, tic, OUT_DIR, 'Forest', 'f1')
-        df_feature = get_corr_matrix(df, df_feature, tic, OUT_DIR, 'Forest', 'jaccard')
-        df_feature = get_corr_matrix(df, df_feature, tic, OUT_DIR, 'Forest', 'accuracy')
+        #df_feature = get_corr_matrix(df, df_feature, tic, OUT_DIR, 'Forest', 'precision')
+        #df_feature = get_corr_matrix(df, df_feature, tic, OUT_DIR, 'Forest', 'recall')
+        #df_feature = get_corr_matrix(df, df_feature, tic, OUT_DIR, 'Forest', 'f1')
+        #df_feature = get_corr_matrix(df, df_feature, tic, OUT_DIR, 'Forest', 'jaccard')
+        #df_feature = get_corr_matrix(df, df_feature, tic, OUT_DIR, 'Forest', 'accuracy')
 
-        df_feature = get_corr_matrix(df, df_feature, tic, OUT_DIR, 'SVC', 'precision')
-        df_feature = get_corr_matrix(df, df_feature, tic, OUT_DIR, 'SVC', 'recall')
-        df_feature = get_corr_matrix(df, df_feature, tic, OUT_DIR, 'SVC', 'f1')
-        df_feature = get_corr_matrix(df, df_feature, tic, OUT_DIR, 'SVC', 'jaccard')
-        df_feature = get_corr_matrix(df, df_feature, tic, OUT_DIR, 'SVC', 'accuracy')
+        #df_feature = get_corr_matrix(df, df_feature, tic, OUT_DIR, 'SVC', 'precision')
+        #df_feature = get_corr_matrix(df, df_feature, tic, OUT_DIR, 'SVC', 'recall')
+        #df_feature = get_corr_matrix(df, df_feature, tic, OUT_DIR, 'SVC', 'f1')
+        #df_feature = get_corr_matrix(df, df_feature, tic, OUT_DIR, 'SVC', 'jaccard')
+        #df_feature = get_corr_matrix(df, df_feature, tic, OUT_DIR, 'SVC', 'accuracy')
 
     if (config.PREDICT_BEFORE_TUNING == True):
         predict_df_before_tuning(df, tic, OUT_DIR)
@@ -113,9 +113,11 @@ for tic in LIST_TICKER_DJI['Symbol']:
         predict_df_before_tuning_one_pred(df, tic, OUT_DIR)
 
     if (config.PREDICT_TUNING_PARAM == True):
+        # Search exhaustive list of hyper param
         predict_tuning_param(df, tic, OUT_DIR)
 
     if (config.PREDICT_VALID_WITH_PARAM == True):
+        # Search the optimized combination of hyper param
         predict_df_val_tuned_param(df, tic, OUT_DIR)
 
     if (config.PREDICT_TEST_SET_WITH_PARAM == True):
