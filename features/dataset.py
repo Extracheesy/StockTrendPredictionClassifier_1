@@ -20,6 +20,11 @@ def balance_df_dataset(df, target):
 
     data = drop_unused_df_feature(data)
 
+    print("balance dataset:")
+    print("data len: ", len(data[target]))
+    print("nb 1:", data[target].sum())
+    print("balance dataset...")
+
     X = data.drop(target, axis=1)
     X_columns = X.columns
     y = data[target]
@@ -36,6 +41,9 @@ def balance_df_dataset(df, target):
 
     X_df = pd.DataFrame(X, columns = X_columns)
     y_df = pd.DataFrame(y, columns=[target])
+
+    print("data len: ", len(y_df[target]))
+    print("nb 1:", y_df[target].sum())
 
     df = pd.concat([X_df, y_df], axis=1)
 
