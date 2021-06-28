@@ -146,7 +146,7 @@ def plot_error_rate(df, OUT_DIR, tic):
     fig = plt.figure()
     fig.set_size_inches(20, 8)
 
-    plt.plot(df[df.columns[0]], df['rmse'], linewidth=0.5)
+    plt.plot(df[df.columns[0]], df['precision'], linewidth=0.5)
 
     plt.grid(True)
     filename = OUT_DIR + tic + "_rmse_1.png"

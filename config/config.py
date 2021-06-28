@@ -1,6 +1,6 @@
 N = 5  # for feature at day t, we use lags from t-1, t-2, ..., t-N as features
 #H = 21  # Forecast horizon, in days. Note there are about 252 trading days in a year
-H = 5  # Forecast horizon, in days. Note there are about 252 trading days in a year
+H = 21  # Forecast horizon, in days. Note there are about 252 trading days in a year
 START_YEAR = 2010
 TRAIN_SIZE = 252 * 3  # Use 3 years of data as train set. Note there are about 252 trading days in a year
 VAL_SIZE = 252  # Use 1 year of data as validation set
@@ -32,8 +32,12 @@ SMOTE = True
 ADASYN = False
 #ADASYN = False
 
-CORR_MATRIX = True
-#CORR_MATRIX = False
+#CORR_MATRIX = True
+CORR_MATRIX = False
+PCA_MATRIX = True
+#PCA_MATRIX = False
+RFECV_MATRIX = True
+#RFECV_MATRIX = False
 
 READ_DATA_FILE = True
 #READ_DATA_FILE = False
@@ -44,28 +48,40 @@ ERROR_RATE_DISPLAY = True
 
 ADD_INDICATORS = True
 #ADD_INDICATORS = False
+
 FILTERS = True
 #FILTERS = False
+
 PLOT_PRICE = False
 #PLOT_PRICE = True
 
 #PREDICT_BEFORE_TUNING = True
 PREDICT_BEFORE_TUNING = False
+
 #PREDICT_BEFORE_TUNING_ONE_PRED = True
 PREDICT_BEFORE_TUNING_ONE_PRED = False
-PREDICT_TUNING_PARAM = True
-#PREDICT_TUNING_PARAM = False
-PREDICT_VALID_WITH_PARAM = True
-#PREDICT_VALID_WITH_PARAM = False
+
+#PREDICT_TUNING_PARAM = True
+PREDICT_TUNING_PARAM = False
+
+#PREDICT_VALID_WITH_PARAM = True
+PREDICT_VALID_WITH_PARAM = False
+
 RUN_VALID_WITH_PARAM = False
+
 PREDICT_TEST_SET_WITH_PARAM = True
 #PREDICT_TEST_SET_WITH_PARAM = False
+
 PREDICT_GRID_SEARCH = False
 
 PRINT_SHAPE = False
 #PRINT_SHAPE = True
 
-GENERIC_PARAM_FOR_TEST = True
+PRINT_PARAM_TUNING = False
+#PRINT_PARAM_TUNING = True
+
+#GENERIC_PARAM_FOR_TEST = True
+GENERIC_PARAM_FOR_TEST = False
 
 N_ESTIMATORS = 100  # Number of boosted trees to fit. default = 100
 MAX_DEPTH = 3  # Maximum tree depth for base learners. default = 3

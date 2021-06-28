@@ -17,6 +17,13 @@ from sklearn.preprocessing import PolynomialFeatures, StandardScaler
 from sklearn.feature_selection import SelectKBest, f_classif
 from sklearn.model_selection import GridSearchCV
 from sklearn.metrics import accuracy_score
+from sklearn.metrics import recall_score
+from sklearn.metrics import f1_score
+from sklearn.metrics import precision_score
+
+
+
+from dataset import balance_df_dataset
 
 def get_rmse(a, b):
     """
@@ -125,34 +132,17 @@ def get_error_metrics(df,
     Outputs
         mean of rmse, mean of mape, mean of mae, dictionary of predictions
     """
-    rmse_list = []  # root mean square error
-    mape_list = []  # mean absolute percentage error
-    mae_list = []  # mean absolute error
-    accuracy_list = []  # accuracy absolute error
+    precision_list = []
+    recall_list = []
+    f1_list = []
+    accuracy_list = []
     preds_dict = {}
 
-    if config.ADD_LAGS == "adj_close":
-        # Get mean and std dev at timestamp t using values from t-1, ..., t-N
-        df = get_mov_avg_std(df, config.ADD_LAGS, N)
-        # Do scaling
-        df = do_scaling(df, N)
-
     # Get list of features
-    """
-    df_feature =  pd.read_csv('DF_FEATURE_LIST.csv')
-    feature_ex = df_feature['attr'].tolist()
-    features = df_feature['attr'].tolist()  # features contain all features, including adj_close_lags
-    for n in range(N, 0, -1):
-        if config.ADD_LAGS == "adj_close":
-            features.append("adj_close_scaled_lag_" + str(n))
-        else:
-            features.append(config.ADD_LAGS + "_lag_" + str(n))
-    """
-
     df_feature = pd.read_csv('DF_FEATURE_LIST.csv')
     features = df_feature['attr'].tolist()
-    feature_ex = df_feature['attr'].tolist()
-    for i in range(train_size, len(df) - H + 1, int(H / 2)):
+
+    for i in range(train_size, len(df) - H + 1, H):
         # Split into train and test
         train = df[i - train_size:i].copy()
         test = df[i:i + H].copy()
@@ -160,55 +150,49 @@ def get_error_metrics(df,
         # Drop the NaNs in train
         train.dropna(axis=0, how='any', inplace=True)
 
-        # Split into X and y
-        X_train_scaled = train[features]
-        if config.ADD_LAGS == "adj_close":
-            y_train_scaled = train['adj_close_scaled']
-            X_test_ex_adj_close = test[features_ex_adj_close]
-            y_test = test['adj_close']
-            prev_vals = train[-N:]['adj_close'].to_numpy()
-            prev_mean_val = test.iloc[0]['adj_close_mean']
-            prev_std_val = test.iloc[0]['adj_close_std']
-        else:
-            y_train_scaled = train['target']
-            X_test = test[feature_ex]
-            y_test = test['target']
-            prev_vals = train[-N:]['target'].to_numpy()
-            prev_mean_val = 0
-            prev_std_val = 0
+        if (config.BALANCE_DATASET == True):
+            train = balance_df_dataset(train, 'target')
 
+        # Split train and test into X and y
+        X_train = train[features]
+        y_train = train['target']
+        X_test = test[features]
+        y_test = test['target']
 
-        rmse, mape, mae, accuracy, est, _ = train_pred_eval_model(X_train_scaled,
-                                                                  y_train_scaled,
-                                                                  X_test,
-                                                                  y_test,
-                                                                  N,
-                                                                  H,
-                                                                  prev_vals,
-                                                                  prev_mean_val,
-                                                                  prev_std_val,
-                                                                  seed=seed,
-                                                                  n_estimators=n_estimators,
-                                                                  max_depth=max_depth,
-                                                                  learning_rate=learning_rate,
-                                                                  min_child_weight=min_child_weight,
-                                                                  subsample=subsample,
-                                                                  colsample_bytree=colsample_bytree,
-                                                                  colsample_bylevel=colsample_bylevel,
-                                                                  gamma=gamma)
-        #         print("N = " + str(N) + ", i = " + str(i) + ", rmse = " + str(rmse) + ", mape = " + str(mape) + ", mae = " + str(mae))
+        prev_vals = train[-N:]['target'].to_numpy()
+        prev_mean_val = 0
+        prev_std_val = 0
 
-        rmse_list.append(rmse)
-        mape_list.append(mape)
-        mae_list.append(mae)
+        precision, recall, f1, accuracy, est, _ = train_pred_eval_model(X_train,
+                                                                        y_train,
+                                                                        X_test,
+                                                                        y_test,
+                                                                        N,
+                                                                        H,
+                                                                        prev_vals,
+                                                                        prev_mean_val,
+                                                                        prev_std_val,
+                                                                        seed=seed,
+                                                                        n_estimators=n_estimators,
+                                                                        max_depth=max_depth,
+                                                                        learning_rate=learning_rate,
+                                                                        min_child_weight=min_child_weight,
+                                                                        subsample=subsample,
+                                                                        colsample_bytree=colsample_bytree,
+                                                                        colsample_bylevel=colsample_bylevel,
+                                                                        gamma=gamma)
+
+        precision_list.append(precision)
+        recall_list.append(recall)
+        f1_list.append(f1)
         accuracy_list.append(accuracy)
         preds_dict[i] = est
 
-    return np.mean(rmse_list), np.mean(mape_list), np.mean(mae_list), np.mean(accuracy_list), preds_dict
+    return round(np.mean(precision_list),2), round(np.mean(recall_list),2), round(np.mean(f1_list),2), round(np.mean(accuracy_list),2), preds_dict
 
-def train_pred_eval_model(X_train_scaled,
-                          y_train_scaled,
-                          X_test_ex_adj_close,
+def train_pred_eval_model(X_train,
+                          y_train,
+                          X_test,
                           y_test,
                           N,
                           H,
@@ -254,49 +238,32 @@ def train_pred_eval_model(X_train_scaled,
         est                : predicted values. Same length as y_test
     '''
 
-    if(config.ADD_LAGS == "adj_close"):
-        model = XGBRegressor(objective='reg:squarederror',
-                             seed=config.MODEL_SEED,
-                             n_estimators=int(n_estimators),
-                             max_depth=int(max_depth),
-                             learning_rate=learning_rate,
-                             min_child_weight=min_child_weight,
-                             subsample=subsample,
-                             colsample_bytree=colsample_bytree,
-                             colsample_bylevel=colsample_bylevel,
-                             gamma=gamma)
-    else:
-        model = XGBClassifier(objective='binary:logistic',
-                              verbosity=0,
-                              seed=config.MODEL_SEED,
-                              n_estimators=int(n_estimators),
-                              max_depth=int(max_depth),
-                              learning_rate=learning_rate,
-                              min_child_weight=min_child_weight,
-                              subsample=subsample,
-                              colsample_bytree=colsample_bytree,
-                              colsample_bylevel=colsample_bylevel,
-                              gamma=gamma)
+    model = XGBClassifier(objective='binary:logistic',
+                          verbosity=0,
+                          seed=config.MODEL_SEED,
+                          n_estimators=int(n_estimators),
+                          max_depth=int(max_depth),
+                          learning_rate=learning_rate,
+                          min_child_weight=min_child_weight,
+                          subsample=subsample,
+                          colsample_bytree=colsample_bytree,
+                          colsample_bylevel=colsample_bylevel,
+                          gamma=gamma)
 
     # Train the model
-    model.fit(X_train_scaled, y_train_scaled)
+    model.fit(X_train, y_train)
 
     # Get predicted labels and scale back to original range
-    est = pred_xgboost(model, X_test_ex_adj_close, N, H, prev_vals, prev_mean_val, prev_std_val)
+    est = pred_xgboost(model, X_test)
     est_series = pd.Series(est)
-    # Calculate RMSE, MAPE, MAE
-    if(config.ADD_LAGS == "adj_close"):
-        rmse = get_rmse(y_test, est)
-        mape = get_mape(y_test, est)
-        mae = get_mae(y_test, est)
-        accuracy = get_accuracy_trend(y_test, est)
-    else:
-        rmse = 0
-        mape = 0
-        mae = 0
-        accuracy = accuracy_score(y_test, est_series)
 
-    return rmse, mape, mae, accuracy, est, model.feature_importances_
+    # Calculate Score
+    precision = precision_score(y_test, est_series)
+    recall = recall_score(y_test, est_series)
+    f1 = f1_score(y_test, est_series)
+    accuracy = accuracy_score(y_test, est_series)
+
+    return precision, recall, f1, accuracy, est, model.feature_importances_
 
 def get_error_metrics_one_pred(df,
                                train_size,
@@ -332,21 +299,10 @@ def get_error_metrics_one_pred(df,
         rmse, mape, mae, predictions
     """
 
-    if config.ADD_LAGS == "adj_close":
-        # Get mean and std dev at timestamp t using values from t-1, ..., t-N
-        df = get_mov_avg_std(df, config.ADD_LAGS, N)
-        # Do scaling
-        df = do_scaling(df, N)
-
     # Get list of features
     df_feature =  pd.read_csv('DF_FEATURE_LIST.csv')
-    feature_ex = df_feature['Feature'].tolist()
-    features = df_feature['Feature'].tolist()  # features contain all features, including adj_close_lags
-    for n in range(N, 0, -1):
-        if config.ADD_LAGS == "adj_close":
-            features.append("adj_close_scaled_lag_" + str(n))
-        else:
-            features.append(config.ADD_LAGS + "_lag_" + str(n))
+    feature_ex = df_feature['attr'].tolist()
+    features = df_feature['attr'].tolist()  # features contain all features, including adj_close_lags
 
     # Split into train and test
     train = df[:train_size].copy()
@@ -356,43 +312,34 @@ def get_error_metrics_one_pred(df,
     train.dropna(axis=0, how='any', inplace=True)
 
     # Split into X and y
-    if config.ADD_LAGS == "adj_close":
-        X_train_scaled = train[features]
-        y_train_scaled = train['adj_close_scaled']
-        X_test_ex_adj_close = test[features_ex_adj_close]
-        y_test = test['adj_close']
-        prev_vals = train[-N:]['adj_close'].to_numpy()
-        prev_mean_val = test.iloc[0]['adj_close_mean']
-        prev_std_val = test.iloc[0]['adj_close_std']
-    else:
-        X_train_scaled = train[features]
-        y_train_scaled = train[config.ADD_LAGS]
-        X_test_ex_adj_close = test[feature_ex]
-        y_test = test[config.ADD_LAGS]
-        prev_vals = train[-N:][config.ADD_LAGS].to_numpy()
-        prev_mean_val = 0
-        prev_std_val = 0
+    X = train[features]
+    y = train['target']
+    X_test = test[features]
+    y_test = test['target']
+    prev_vals = train[-N:]['target'].to_numpy()
+    prev_mean_val = 0
+    prev_std_val = 0
 
-    rmse, mape, mae, accuracy, est, feature_importances = train_pred_eval_model(X_train_scaled,
-                                                                                y_train_scaled,
-                                                                                X_test_ex_adj_close,
-                                                                                y_test,
-                                                                                N,
-                                                                                H,
-                                                                                prev_vals,
-                                                                                prev_mean_val,
-                                                                                prev_std_val,
-                                                                                seed=seed,
-                                                                                n_estimators=n_estimators,
-                                                                                max_depth=max_depth,
-                                                                                learning_rate=learning_rate,
-                                                                                min_child_weight=min_child_weight,
-                                                                                subsample=subsample,
-                                                                                colsample_bytree=colsample_bytree,
-                                                                                colsample_bylevel=colsample_bylevel,
-                                                                                gamma=gamma)
+    precision, recall, f1, accuracy, est, feature_importances = train_pred_eval_model(X,
+                                                                                      y,
+                                                                                      X_test,
+                                                                                      y_test,
+                                                                                      N,
+                                                                                      H,
+                                                                                      prev_vals,
+                                                                                      prev_mean_val,
+                                                                                      prev_std_val,
+                                                                                      seed=seed,
+                                                                                      n_estimators=n_estimators,
+                                                                                      max_depth=max_depth,
+                                                                                      learning_rate=learning_rate,
+                                                                                      min_child_weight=min_child_weight,
+                                                                                      subsample=subsample,
+                                                                                      colsample_bytree=colsample_bytree,
+                                                                                      colsample_bylevel=colsample_bylevel,
+                                                                                      gamma=gamma)
 
-    return rmse, mape, mae, accuracy, est, feature_importances, features
+    return precision, recall, f1, accuracy, est, feature_importances
 
 def get_error_metrics_GS(df,
                          train_size,

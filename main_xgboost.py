@@ -18,8 +18,10 @@ from indicators import add_indicator
 from tools import filter_df_date_year
 from tools import filter_df_rm_n_last_raw
 from tools import format_df
-from corr import get_corr_matrix
-from init import build_df_importance_feature
+from tools import drop_unused_df_feature
+from corr import get_RFECV_features
+from corr import get_CORR_features
+from corr import get_PCA_features
 from predict import predict_df_before_tuning
 from predict import predict_df_before_tuning_one_pred
 from predict import predict_df_val_tuned_param
@@ -82,29 +84,32 @@ for tic in LIST_TICKER_DJI['Symbol']:
     if(config.PLOT_PRICE == True):
         plot_price(df, tic, OUT_DIR)
 
-    if (config.BALANCE_DATASET == True):
-        df = balance_df_dataset(df, 'target')
+    df = drop_unused_df_feature(df)
 
     if (config.CORR_MATRIX == True):
-        df_feature = build_df_importance_feature(df)
+        df_feature = get_CORR_features(df, tic, OUT_DIR, 'XGB', 'accuracy')
 
-        df_feature = get_corr_matrix(df, df_feature, tic, OUT_DIR, 'XGB', 'accuracy')
-        #df_feature = get_corr_matrix(df, df_feature, tic, OUT_DIR, 'XGB', 'jaccard')
-        df_feature = get_corr_matrix(df, df_feature, tic, OUT_DIR, 'XGB', 'f1')
-        #df_feature = get_corr_matrix(df, df_feature, tic, OUT_DIR, 'XGB', 'precision')
-        #df_feature = get_corr_matrix(df, df_feature, tic, OUT_DIR, 'XGB', 'recall')
+    if (config.PCA_MATRIX == True):
+        df = get_PCA_features(df)
 
-        #df_feature = get_corr_matrix(df, df_feature, tic, OUT_DIR, 'Forest', 'precision')
-        #df_feature = get_corr_matrix(df, df_feature, tic, OUT_DIR, 'Forest', 'recall')
-        #df_feature = get_corr_matrix(df, df_feature, tic, OUT_DIR, 'Forest', 'f1')
-        #df_feature = get_corr_matrix(df, df_feature, tic, OUT_DIR, 'Forest', 'jaccard')
-        #df_feature = get_corr_matrix(df, df_feature, tic, OUT_DIR, 'Forest', 'accuracy')
+    if (config.RFECV_MATRIX == True):
+        #df = get_RFECV_features(df, tic, OUT_DIR, 'XGB', 'accuracy')
+        #df = get_RFECV_features(df, tic, OUT_DIR, 'XGB', 'f1')
+        #df_feature = get_RFECV_features(df, tic, OUT_DIR, 'XGB', 'jaccard')
+        df = get_RFECV_features(df, tic, OUT_DIR, 'XGB', 'precision')
+        #df_feature = get_RFECV_features(df, tic, OUT_DIR, 'XGB', 'recall')
 
-        #df_feature = get_corr_matrix(df, df_feature, tic, OUT_DIR, 'SVC', 'precision')
-        #df_feature = get_corr_matrix(df, df_feature, tic, OUT_DIR, 'SVC', 'recall')
-        #df_feature = get_corr_matrix(df, df_feature, tic, OUT_DIR, 'SVC', 'f1')
-        #df_feature = get_corr_matrix(df, df_feature, tic, OUT_DIR, 'SVC', 'jaccard')
-        #df_feature = get_corr_matrix(df, df_feature, tic, OUT_DIR, 'SVC', 'accuracy')
+        #df_feature = get_RFECV_features(df, tic, OUT_DIR, 'Forest', 'precision')
+        #df_feature = get_RFECV_features(df, tic, OUT_DIR, 'Forest', 'recall')
+        #df_feature = get_RFECV_features(df, tic, OUT_DIR, 'Forest', 'f1')
+        #df_feature = get_RFECV_features(df, tic, OUT_DIR, 'Forest', 'jaccard')
+        #df_feature = get_RFECV_features(df, tic, OUT_DIR, 'Forest', 'accuracy')
+
+        #df_feature = get_RFECV_features(df, tic, OUT_DIR, 'SVC', 'precision')
+        #df_feature = get_RFECV_features(df, tic, OUT_DIR, 'SVC', 'recall')
+        #df_feature = get_RFECV_features(df, tic, OUT_DIR, 'SVC', 'f1')
+        #df_feature = get_RFECV_features(df, tic, OUT_DIR, 'SVC', 'jaccard')
+        #df_feature = get_RFECV_features(df, tic, OUT_DIR, 'SVC', 'accuracy')
 
     if (config.PREDICT_BEFORE_TUNING == True):
         predict_df_before_tuning(df, tic, OUT_DIR)

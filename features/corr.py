@@ -10,13 +10,15 @@ from sklearn.feature_selection import RFECV
 from sklearn.feature_selection import RFE
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.svm import SVC
+from sklearn.decomposition import PCA
+from sklearn.preprocessing import MinMaxScaler
 
 from xgboost import XGBClassifier
 
 from tools import drop_unused_df_feature
 import config
 
-def get_corr_matrix(df, df_feature, tic, OUT_DIR, model_type, scoring):
+def get_RFECV_features(df, tic, OUT_DIR, model_type, scoring):
 
     #features = df.columns
     #corr_matrix = df[features].corr()
@@ -116,4 +118,34 @@ def get_corr_matrix(df, df_feature, tic, OUT_DIR, model_type, scoring):
 
     plt.clf()
 
-    return df_feature
+    df_rfecv = df[dset['attr']]
+    df_rfecv['target'] = target.copy()
+
+    return df_rfecv
+
+def get_CORR_features(df, tic, OUT_DIR, model_type, scoring):
+
+    return df
+
+def get_PCA_features(df):
+
+    print("Feature PCA selection...")
+
+    data = df.copy()
+
+    X = data.drop('target', axis=1)
+
+    target = data['target']
+
+    scaler = MinMaxScaler()
+    X_rescaled = scaler.fit_transform(X)
+
+    pca = PCA(n_components=0.99)
+    pca.fit(X_rescaled)
+    X_pca = pca.transform(X_rescaled)
+
+    df_pca = pd.DataFrame(X_pca)
+
+    df_pca["target"] = target
+
+    return df_pca
