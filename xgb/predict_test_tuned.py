@@ -21,7 +21,7 @@ def run_test_set_with_tuned_param(df, tic, OUT_DIR, df_summary):
         filename = OUT_DIR + "after_tuning/" + tic + "_final_param.csv"
     df_param = pd.read_csv(filename, index_col=0)
 
-    OUT_DIR = OUT_DIR + "test_set_tuning/"
+    OUT_DIR = OUT_DIR + "after_tuning/"
     if (os.path.isdir(OUT_DIR) == False):
         print("new results directory: ", OUT_DIR)
         os.mkdir(OUT_DIR)
@@ -31,7 +31,7 @@ def run_test_set_with_tuned_param(df, tic, OUT_DIR, df_summary):
     df_param = df_param.sort_values(by=['precision'], ascending=False)
     df_param = df_param.reset_index(drop=True)
 
-    lst_column = ['date','iter','precision','recall','f1','accuracy']
+    lst_column = ['date', 'id', 'iter', 'precision', 'recall', 'f1', 'accuracy']
     for i in range(0, config.H, 1):
         lst_column.append("day_" + str(i))
     df_pred = pd.DataFrame(columns=lst_column)
@@ -64,6 +64,7 @@ def run_test_set_with_tuned_param(df, tic, OUT_DIR, df_summary):
 
             lst_est = []
             lst_est.append(str(pred_day))
+            lst_est.append("param_" + str(i))
             lst_est.append(str(i))
             lst_est.append(round(precision,2))
             lst_est.append(round(recall,2))
@@ -72,9 +73,24 @@ def run_test_set_with_tuned_param(df, tic, OUT_DIR, df_summary):
             lst_est.extend(est)
             df_pred = addRow(df_pred, lst_est)
 
+        lst_yesterday = []
+        lst_yesterday.append(str(pred_day))
+        lst_yesterday.append("previous_day")
+        lst_yesterday.append(4)
+        lst_yesterday.append(0)
+        lst_yesterday.append(0)
+        lst_yesterday.append(0)
+        lst_yesterday.append(0)
+
+        trend = df[pred_day - 1 : pred_day + config.H - 1].copy()
+        y_yesterday = trend['target'].to_numpy()
+        lst_yesterday.extend(y_yesterday)
+        df_pred = addRow(df_pred, lst_yesterday)
+
         lst_pred = []
         lst_pred.append(str(pred_day))
-        lst_pred.append("pred")
+        lst_pred.append("test_set")
+        lst_pred.append(5)
         lst_pred.append(0)
         lst_pred.append(0)
         lst_pred.append(0)
@@ -85,56 +101,10 @@ def run_test_set_with_tuned_param(df, tic, OUT_DIR, df_summary):
         lst_pred.extend(y_pred)
         df_pred = addRow(df_pred, lst_pred)
 
-    df_pred.to_csv('test_predict_tmp.csv')
-    print("##############################")
+    filename = config.RESULTS_DIR + str(tic) + "_raw_results_tuned.csv"
+    df_pred.to_csv(filename, index=False)
 
-    """
-            val = df[config.ADD_LAGS].values[pred_day - 1]
-            df_prediction = pd.DataFrame({config.ADD_LAGS: [val]})
-            df_prediction_tmp = pd.DataFrame(est, columns=[config.ADD_LAGS])
-            df_prediction = df_prediction.append(df_prediction_tmp)
-            df_prediction = df_prediction.reset_index(drop=True)
+    filename = OUT_DIR + str(tic) + "_raw_results_tuned.csv"
+    df_pred.to_csv(filename, index=False)
 
-            serie_y_test = df[pred_day - 1: pred_day + config.H][config.ADD_LAGS]
-
-            df_y_test = pd.DataFrame(serie_y_test)
-            df_y_test = df_y_test.reset_index(drop=True)
-
-            trend_day_first, trend_day_end, trend_all_percent, first_trend_test, first_trend_pred, end_trend_test, end_trend_pred = get_accuracy_trends(df_y_test, df_prediction)
-
-            df_results = set_data_df_param(df_results,
-                                           tic,
-                                           pred_day,
-                                           type,
-                                           test_rmse_aft_tuning,
-                                           test_mape_aft_tuning,
-                                           test_mae_aft_tuning,
-                                           test_accuracy_bef_tuning,
-                                           trend_day_first,
-                                           trend_day_end,
-                                           trend_all_percent,
-                                           first_trend_test,
-                                           first_trend_pred,
-                                           end_trend_test,
-                                           end_trend_pred,
-                                           n_estimators_opt,
-                                           max_depth_opt,
-                                           learning_rate_opt,
-                                           min_child_weight_opt,
-                                           subsample_opt,
-                                           colsample_bytree_opt,
-                                           colsample_bylevel_opt,
-                                           gamma_opt)
-    """
-
-    df_results = set_bet_proba(df_results)
-
-    df_summary = raw_summary_ticker(df_results, df_summary, tic)
-
-    filename = config.RESULTS_DIR + str(tic) + "_results_tuned.csv"
-    df_results.to_csv(filename, index=False)
-
-    filename = config.RESULTS_DIR + str(tic) + "_tmp_summary.csv"
-    df_summary.to_csv(filename, index=False)
-
-    return df_summary
+    return df_pred

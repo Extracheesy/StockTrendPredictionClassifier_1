@@ -36,8 +36,8 @@ ADASYN = False
 CORR_MATRIX = False
 PCA_MATRIX = True
 #PCA_MATRIX = False
-RFECV_MATRIX = True
-#RFECV_MATRIX = False
+#RFECV_MATRIX = True
+RFECV_MATRIX = False
 
 READ_DATA_FILE = True
 #READ_DATA_FILE = False
@@ -69,8 +69,11 @@ PREDICT_VALID_WITH_PARAM = False
 
 RUN_VALID_WITH_PARAM = False
 
-PREDICT_TEST_SET_WITH_PARAM = True
-#PREDICT_TEST_SET_WITH_PARAM = False
+#PREDICT_TEST_SET_WITH_PARAM = True
+PREDICT_TEST_SET_WITH_PARAM = False
+
+COMPUTE_RESULT = True
+#COMPUTE_RESULT = False
 
 PREDICT_GRID_SEARCH = False
 
@@ -175,4 +178,11 @@ LIST_COLUMNS_FEATURE = ['year',
                         #'is_quarter_end',
                         #'is_quarter_start',
                         #'is_year_end'
+                        ]
+
+LIST_COLUMNS_RESULTS = ['date',
+                        'strategy',
+                        'win',
+                        'hold',
+                        'lost',
                         ]

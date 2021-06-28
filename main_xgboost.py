@@ -27,13 +27,20 @@ from predict import predict_df_before_tuning_one_pred
 from predict import predict_df_val_tuned_param
 from predict import predict_tuning_param
 from predict import predict_test_set_with_tuned_param
+from compute_results import compute_df_results
+from compute_results import read_csv_results
 from dataset import balance_df_dataset
 
-# Mute sklearn warnings
 from warnings import simplefilter
 simplefilter(action='ignore', category=FutureWarning)
 simplefilter(action='ignore', category=DeprecationWarning)
 simplefilter(action='ignore', category=UserWarning)
+
+# Mute pandas warnings
+from pandas.core.common import SettingWithCopyWarning
+simplefilter(action="ignore", category=SettingWithCopyWarning)
+
+
 
 if (os.path.isdir(config.TRACES_DIR) == False):
     print("new traces directory: ", config.TRACES_DIR)
@@ -126,9 +133,12 @@ for tic in LIST_TICKER_DJI['Symbol']:
         predict_df_val_tuned_param(df, tic, OUT_DIR)
 
     if (config.PREDICT_TEST_SET_WITH_PARAM == True):
-        df_summary = predict_test_set_with_tuned_param(df, tic, OUT_DIR, df_summary)
-        filename = config.RESULTS_DIR + "summary_results_final.csv"
-        df_summary.to_csv(filename)
+        df_prediction = predict_test_set_with_tuned_param(df, tic, OUT_DIR, df_summary)
+    else:
+        df_prediction = read_csv_results(tic, OUT_DIR)
+
+    if(config.COMPUTE_RESULT == True):
+        compute_df_results(df_prediction, tic, OUT_DIR)
 
 
 
