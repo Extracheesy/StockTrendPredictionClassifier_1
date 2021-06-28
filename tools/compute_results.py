@@ -56,9 +56,10 @@ def compute_df_results(df_prediction, tic, OUT_DIR):
     df_results = pd.DataFrame(columns=config.LIST_COLUMNS_RESULTS)
 
     for pred_day in config.PRED_DAY_LIST:
+        df_prediction['date'] = df_prediction['date'].astype(int)
         df_filtered = df_prediction[df_prediction['date'] == pred_day]
         df_filtered = df_filtered.drop(columns=['date', 'precision', 'recall', 'f1', 'accuracy','iter','id'])
-
+        df_filtered = df_filtered.astype(float)
         df_transposed = df_filtered.transpose()
 
         lst_column = df_transposed.columns
