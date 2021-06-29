@@ -19,6 +19,7 @@ from tools import filter_df_date_year
 from tools import filter_df_rm_n_last_raw
 from tools import format_df
 from tools import drop_unused_df_feature
+from tools import merge_df
 from corr import get_RFECV_features
 from corr import get_CORR_features
 from corr import get_PCA_features
@@ -57,6 +58,7 @@ if (os.path.isdir(config.FEATURE_DIRECTORY) == False):
 LIST_TICKER_DJI = get_df_DJI()
 
 df_summary = pd.DataFrame(columns=config.LIST_COLUMNS_TIC_SUMMARY)
+df_results = pd.DataFrame(columns=config.LIST_COLUMNS_RESULTS)
 
 for tic in LIST_TICKER_DJI['Symbol']:
     STOCK_NAME = tic
@@ -138,7 +140,9 @@ for tic in LIST_TICKER_DJI['Symbol']:
         df_prediction = read_csv_results(tic, OUT_DIR)
 
     if(config.COMPUTE_RESULT == True):
-        compute_df_results(df_prediction, tic, OUT_DIR)
-
+        df_results_tmp = compute_df_results(df_prediction, tic, OUT_DIR)
+        df_results = merge_df(df_results, df_results_tmp)
+        filename = config.RESULTS_DIR + "global_final_result.csv"
+        df_results.to_csv(filename)
 
 

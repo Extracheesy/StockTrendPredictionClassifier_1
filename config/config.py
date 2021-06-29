@@ -180,7 +180,8 @@ LIST_COLUMNS_FEATURE = ['year',
                         #'is_year_end'
                         ]
 
-LIST_COLUMNS_RESULTS = ['date',
+LIST_COLUMNS_RESULTS = ['tic',
+                        'date',
                         'strategy',
                         'win',
                         'hold',

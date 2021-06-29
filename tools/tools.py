@@ -190,3 +190,9 @@ def drop_unused_df_feature(df):
     df.to_csv("test_df_full_data_after_drop.csv")
 
     return df
+
+def merge_df(df1, df2):
+    frames = [df1, df2]
+    df_result = pd.concat(frames)
+
+    return df_result

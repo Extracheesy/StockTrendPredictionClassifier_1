@@ -50,6 +50,12 @@ def get_strategy_results(pred, test):
 
     return count_win, count_hold, count_lost
 
+def get_trend_count(test):
+    count_win = round(test.sum() / len(test),2)
+    count_hold = 0
+    count_lost = round((len(test) - test.sum()) / len(test),2)
+
+    return count_win, count_hold, count_lost
 
 def compute_df_results(df_prediction, tic, OUT_DIR):
 
@@ -69,6 +75,7 @@ def compute_df_results(df_prediction, tic, OUT_DIR):
         up_win, hold, down_lost = get_strategy_results(df_transposed[pred_pos], df_transposed[test_pos])
 
         new_row_lst = []
+        new_row_lst.append(tic)
         new_row_lst.append(pred_day)
         new_row_lst.append("no_merge")
         new_row_lst.append(up_win)
@@ -84,6 +91,7 @@ def compute_df_results(df_prediction, tic, OUT_DIR):
             up_win, hold, down_lost = get_strategy_results(merged, df_transposed[test_pos])
 
             new_row_lst = []
+            new_row_lst.append(tic)
             new_row_lst.append(pred_day)
             new_row_lst.append("merge_" + str(j))
             new_row_lst.append(up_win)
@@ -94,8 +102,20 @@ def compute_df_results(df_prediction, tic, OUT_DIR):
         up_win, hold, down_lost = get_strategy_results(df_transposed[yesterday_trend_pos], df_transposed[test_pos])
 
         new_row_lst = []
+        new_row_lst.append(tic)
         new_row_lst.append(pred_day)
-        new_row_lst.append("yesterday_trend")
+        new_row_lst.append("yesterday_strategy")
+        new_row_lst.append(up_win)
+        new_row_lst.append(hold)
+        new_row_lst.append(down_lost)
+        df_results = addRow(df_results, new_row_lst)
+
+        up_win, hold, down_lost = get_trend_count(df_transposed[test_pos])
+
+        new_row_lst = []
+        new_row_lst.append(tic)
+        new_row_lst.append(pred_day)
+        new_row_lst.append("trend")
         new_row_lst.append(up_win)
         new_row_lst.append(hold)
         new_row_lst.append(down_lost)
@@ -107,4 +127,6 @@ def compute_df_results(df_prediction, tic, OUT_DIR):
 
     filename = config.RESULTS_DIR + str(tic) + "_final_results_stats.csv"
     df_results.to_csv(filename)
+
+    return df_results
 
