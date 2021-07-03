@@ -7,6 +7,7 @@ VAL_SIZE = 252  # Use 1 year of data as validation set
 TRAIN_VAL_SIZE = TRAIN_SIZE + VAL_SIZE
 
 PRED_DAY_LIST = [1008, 1050, 1092, 1134, 1176, 1218, 1260, 1302, 1344, 1386, 1428, 1470]
+PRED_DAY_LIST_DATE = []
 PRED_DAY_NB_ITEM = 3
 PRED_DAY = 1008  # Predict for this day, for the next H-1 days. Note indexing of days start from 0.
 
@@ -15,6 +16,9 @@ RESULTS_DIR = TRACES_DIR + "results/"
 FEATURE_DIRECTORY = TRACES_DIR + "feature/"
 STOCKS_DIRECTORY = './Data/Stocks/'
 STOCKS_DJI_DIRECTORY = './Data/Stocks_dji/'
+
+STOP_LOSS = -1.0
+STOP_LOSS_ACTIVE = True
 
 #ADD_LAGS = 'adj_close'
 #ADD_LAGS = 'trend'
@@ -186,4 +190,8 @@ LIST_COLUMNS_RESULTS = ['tic',
                         'win',
                         'hold',
                         'lost',
+                        'sum_close_day',
+                        'gain_7_percent',
+                        'gain_10_percent',
+                        'gain_15_percent'
                         ]

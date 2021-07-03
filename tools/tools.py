@@ -1,9 +1,11 @@
 from sklearn.preprocessing import LabelEncoder
-import config
+
 import pandas as pd
 import numpy as np
 import re
 from re import search
+
+import config
 
 def filter_df_date_year(df, year):
     df = df[(df['date'].dt.year >= year)].copy()
@@ -196,3 +198,12 @@ def merge_df(df1, df2):
     df_result = pd.concat(frames)
 
     return df_result
+
+def fill_lst_date(df):
+    config.PRED_DAY_LIST_DATE = []
+    for pred_day in config.PRED_DAY_LIST:
+        config.PRED_DAY_LIST_DATE.append(df['date'][pred_day])
+
+
+
+
