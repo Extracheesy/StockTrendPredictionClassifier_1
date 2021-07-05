@@ -18,8 +18,8 @@ STOCKS_DIRECTORY = './Data/Stocks/'
 STOCKS_DJI_DIRECTORY = './Data/Stocks_dji/'
 
 STOP_LOSS = -1.0
-STOP_LOSS_ACTIVE = False
-#STOP_LOSS_ACTIVE = True
+#STOP_LOSS_ACTIVE = False
+STOP_LOSS_ACTIVE = True
 
 ACTIVE_TIC = ''
 

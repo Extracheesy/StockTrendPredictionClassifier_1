@@ -176,6 +176,10 @@ def compute_df_results(df_prediction, df_raw_data,tic, OUT_DIR):
 
             df_results = addRow(df_results, new_row_lst)
 
+        df_raw_data_filtered = df_raw_data[pred_day -1: pred_day + config.H -1]
+        data_accuracy = compute_dataset_pred_accuracy(df_transposed[yesterday_trend_pos], df_raw_data_filtered)
+        print("Yesterday data set / pred accuracy: ", data_accuracy)
+
         up_win, hold, down_lost = get_strategy_results(df_transposed[yesterday_trend_pos], df_transposed[test_pos])
         sum_close_day, gain_7_percent, gain_10_percent, gain_15_percent = get_gross_return(df_transposed[yesterday_trend_pos], df_raw_data_filtered)
 
@@ -194,6 +198,7 @@ def compute_df_results(df_prediction, df_raw_data,tic, OUT_DIR):
 
         df_results = addRow(df_results, new_row_lst)
 
+        df_raw_data_filtered = df_raw_data[pred_day: pred_day + config.H]
         up_win, hold, down_lost = get_trend_count(df_transposed[test_pos])
         sum_close_day, gain_7_percent, gain_10_percent, gain_15_percent = get_gross_return(df_transposed[test_pos], df_raw_data_filtered)
 
