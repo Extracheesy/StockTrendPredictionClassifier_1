@@ -151,7 +151,7 @@ def addRow(df,ls):
     return df
 
 def drop_unused_df_feature(df):
-    """
+
     df = df.drop('is_month_end', axis=1)
     df = df.drop('is_month_start', axis=1)
     df = df.drop('is_quarter_end', axis=1)
@@ -165,7 +165,6 @@ def drop_unused_df_feature(df):
     df = df.drop('day', axis=1)
     df = df.drop('dayofweek', axis=1)
     df = df.drop('dayofyear', axis=1)
-    """
 
     df = df.drop('open', axis=1)
     df = df.drop('close', axis=1)
@@ -176,20 +175,17 @@ def drop_unused_df_feature(df):
 
     df = df.drop('date', axis=1)
 
-    if (config.PREDICT_TARGET != 'target_day+1'):
-        df = df.drop('target_day+1', axis=1)
+    #if (config.PREDICT_TARGET != 'target_day+1'):
+    #    df = df.drop('target_day+1' axis=1)
 
-    df = df.drop('target_day+2', axis=1)
-    df = df.drop('target_day+3', axis=1)
-    df = df.drop('target_day+4', axis=1)
-    df = df.drop('target_day+5', axis=1)
-
+    for i in range(2,config.H + 1,1):
+        df = df.drop('target_day+' + str(i), axis=1)
 
     #if (config.DROP_LAGS == True):
     #    for i in range(1, config.N + 1, 1):
     #        df = df.drop('trend_lag_' + str(i), axis=1)
 
-    df.to_csv("test_df_full_data_after_drop.csv")
+    #df.to_csv("test_df_full_data_after_drop.csv")
 
     return df
 
@@ -205,5 +201,12 @@ def fill_lst_date(df):
         config.PRED_DAY_LIST_DATE.append(df['date'][pred_day])
 
 
+def compare_df_accuracy(df1, df2):
+    accuracy = 0
 
+    for i in range(0, len(df1), 1):
+        if(df1[i] == df2[i]):
+            accuracy = accuracy + 1
+
+    return round(accuracy/len(df1)*100,2)
 

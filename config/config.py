@@ -18,8 +18,13 @@ STOCKS_DIRECTORY = './Data/Stocks/'
 STOCKS_DJI_DIRECTORY = './Data/Stocks_dji/'
 
 STOP_LOSS = -1.0
-STOP_LOSS_ACTIVE = True
+STOP_LOSS_ACTIVE = False
+#STOP_LOSS_ACTIVE = True
 
+ACTIVE_TIC = ''
+
+#OPEN_CLOSE = True
+OPEN_CLOSE = False
 #ADD_LAGS = 'adj_close'
 #ADD_LAGS = 'trend'
 ADD_LAGS = 'target_day+1'

@@ -104,10 +104,7 @@ def get_RFECV_features(df, tic, OUT_DIR, model_type, scoring):
     dset['importance'] = rfecv.estimator_.feature_importances_
     dset = dset.sort_values(by='importance', ascending=False)
 
-    filename = config.FEATURE_DIRECTORY + tic + '_feature_selected_' + str(model_type) + '_' + str(scoring) + '.csv'
-    dset.to_csv(filename)
-
-    filename = "DF_FEATURE_LIST.csv"
+    filename = config.FEATURE_DIRECTORY + config.ACTIVE_TIC + '_DF_FEATURE_LIST.csv'
     dset.to_csv(filename)
 
     plt.figure(figsize=(16, 10))

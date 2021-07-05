@@ -3,6 +3,7 @@ import pandas  as pd
 import numpy as np
 
 from tools import add_lags
+from tools import compare_df_accuracy
 
 from ta.trend import stc
 
@@ -11,13 +12,13 @@ import talib
 def add_RSI(df, n=14):
 
     df['rsi'] = talib.RSI(df.close.values, timeperiod=n)
-
+    """
     df['rsi_b'] = df['rsi']
 
     df.loc[df['rsi_b'] <= 30, 'rsi_b'] = int(0)
     df.loc[df['rsi_b'] >= 70, 'rsi_b'] = int(1)
     df.loc[(df['rsi_b'] > 30) & (df['rsi_b'] < 70), 'rsi_b'] = int(2)
-
+    """
     return df
 
 def add_SMA(df):
@@ -115,26 +116,36 @@ def add_STOCHASTIC(df, n=14):
 
 def add_trend(df_stock_price):
 
-    close = df_stock_price['adj_close']
+    #close = df_stock_price['adj_close']
+    close = df_stock_price['close']
+    open = df_stock_price['open']
 
     # Get the difference in price from previous step
-    delta = close.diff()
+    if(config.OPEN_CLOSE == True):
+        delta = df_stock_price['close'] - df_stock_price['open']
+    else:
+        delta = close.diff()
     delta[delta > 0] = int(1)
     delta[delta <= 0] = int(0)
     df_stock_price.insert(len(df_stock_price.columns), "trend", delta)
 
+
     # Get the tomorrow 'trend' precdiction
     for i in range(1, config.H + 1, 1):
         #target_raw = (df_stock_price['adj_close'].shift(-i) / df_stock_price['adj_close']) - 1
-        target_raw = close.shift(-i) - close
-        target_raw[target_raw > 0] = int(1)
-        target_raw[target_raw <= 0] = int(0)
+        if(config.OPEN_CLOSE == True):
+            target_raw = close.shift(-i) - open.shift(-i)
+        else:
+            #target_raw = close.shift(-i) - close
+            target_raw = delta.shift(i)
+        #target_raw[target_raw > 0] = int(1)
+        #target_raw[target_raw <= 0] = int(0)
+
+        #data_accuracy = compare_df_accuracy(delta, target_raw.shift(i))
+        #data_accuracy = compare_df_accuracy(delta, target_raw.shift(-i))
+        #print("accuracy:", data_accuracy)
+
         df_stock_price.insert(len(df_stock_price.columns), "target_day+" + str(i), target_raw)
-
-    # del df_stock_price["trend"]
-    #df_stock_price["trend"] = df_stock_price["target_day+1"]
-
-    #df_stock_price["trend"] = df_stock_price["trend"].shift(-1)
 
     df_stock_price = df_stock_price.replace([np.inf, -np.inf], np.nan).dropna()
     df_stock_price = df_stock_price.reset_index(drop=True)
@@ -168,6 +179,6 @@ def add_indicator(df):
     df = add_lags(df, config.N, [config.ADD_LAGS])
     df = add_target(df)
 
-    df.to_csv("test_df_full_data_3.csv")
+    #df.to_csv("test_df_full_data_3.csv")
 
     return df

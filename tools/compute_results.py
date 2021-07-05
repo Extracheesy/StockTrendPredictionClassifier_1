@@ -99,8 +99,22 @@ def get_gross_return(df_pred, df_data):
         #print("i:              ",i,              " delta day =      ", round(delta_day,2),       " delta high:      ", round(delta_high,2), " sum_close_day: ", round(sum_close_day,2))
         #print("gain_7_percent: ", round(gain_7_percent,2)," gain_10_percent: ", round(gain_10_percent,2), " gain_15_percent: ", round(gain_15_percent,2))
 
-    return round(sum_close_day,2), round(gain_7_percent,2), round(gain_10_percent,2), round(gain_15_percent,2)
+    return round(sum_close_day / len(df_pred),2), round(gain_7_percent,2), round(gain_10_percent,2), round(gain_15_percent,2)
 
+def compute_dataset_pred_accuracy(df_test, df_data):
+    accuracy_score = 0
+
+    df_test.reset_index(drop=True, inplace=True)
+    df_data.reset_index(drop=True, inplace=True)
+
+    dataset_trend = df_data['close'] - df_data['open']
+    dataset_trend[dataset_trend > 0] = int(1)
+    dataset_trend[dataset_trend <= 0] = int(0)
+    for i in range(0, len(df_test), 1):
+        if dataset_trend[i] == df_test[i]:
+            accuracy_score = accuracy_score + 1
+
+    return round(accuracy_score / len(df_test), 2)
 
 def compute_df_results(df_prediction, df_raw_data,tic, OUT_DIR):
 
@@ -119,7 +133,9 @@ def compute_df_results(df_prediction, df_raw_data,tic, OUT_DIR):
         yesterday_trend_pos = lst_column[len(lst_column) - 2]
         up_win, hold, down_lost = get_strategy_results(df_transposed[pred_pos], df_transposed[test_pos])
 
-        df_raw_data_filtered = df_raw_data[pred_day : pred_day + config.H]
+        df_raw_data_filtered = df_raw_data[pred_day -1: pred_day + config.H -1]
+        data_accuracy = compute_dataset_pred_accuracy(df_transposed[test_pos], df_raw_data_filtered)
+        print("data set / pred accuracy: ", data_accuracy)
         sum_close_day, gain_7_percent, gain_10_percent, gain_15_percent = get_gross_return(df_transposed[pred_pos], df_raw_data_filtered)
 
         new_row_lst = []

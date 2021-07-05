@@ -62,6 +62,7 @@ df_summary = pd.DataFrame(columns=config.LIST_COLUMNS_TIC_SUMMARY)
 df_results = pd.DataFrame(columns=config.LIST_COLUMNS_RESULTS)
 
 for tic in LIST_TICKER_DJI['Symbol']:
+    config.ACTIVE_TIC = tic
     STOCK_NAME = tic
     OUT_DIR = config.TRACES_DIR + "out_" + STOCK_NAME + "/"
 

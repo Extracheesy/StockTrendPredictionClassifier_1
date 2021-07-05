@@ -139,7 +139,11 @@ def get_error_metrics(df,
     preds_dict = {}
 
     # Get list of features
-    df_feature = pd.read_csv('DF_FEATURE_LIST.csv')
+    #df_feature = pd.read_csv('DF_FEATURE_LIST.csv')
+
+    filename = config.FEATURE_DIRECTORY + config.ACTIVE_TIC + '_DF_FEATURE_LIST.csv'
+    df_feature = pd.read_csv(filename)
+
     features = df_feature['attr'].tolist()
 
     for i in range(train_size, len(df) - H + 1, H):
@@ -300,8 +304,11 @@ def get_error_metrics_one_pred(df,
     """
 
     # Get list of features
-    df_feature =  pd.read_csv('DF_FEATURE_LIST.csv')
-    feature_ex = df_feature['attr'].tolist()
+    #df_feature =  pd.read_csv('DF_FEATURE_LIST.csv')
+
+    filename = config.FEATURE_DIRECTORY + config.ACTIVE_TIC + '_DF_FEATURE_LIST.csv'
+    df_feature = pd.read_csv(filename)
+
     features = df_feature['attr'].tolist()  # features contain all features, including adj_close_lags
 
     # Split into train and test
@@ -374,14 +381,12 @@ def get_error_metrics_GS(df,
     Outputs
         rmse, mape, mae, predictions
     """
-    if config.ADD_LAGS == "adj_close":
-        # Get mean and std dev at timestamp t using values from t-1, ..., t-N
-        df = get_mov_avg_std(df, config.ADD_LAGS, N)
-        # Do scaling
-        df = do_scaling(df, N)
-
     # Get list of features
-    df_feature =  pd.read_csv('DF_FEATURE_LIST.csv')
+    #df_feature =  pd.read_csv('DF_FEATURE_LIST.csv')
+
+    filename = config.FEATURE_DIRECTORY + config.ACTIVE_TIC + '_DF_FEATURE_LIST.csv'
+    df_feature = pd.read_csv(filename)
+
     feature_ex = df_feature['Feature'].tolist()
     features = df_feature['Feature'].tolist()  # features contain all features, including adj_close_lags
 
