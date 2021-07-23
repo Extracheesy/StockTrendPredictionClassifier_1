@@ -135,6 +135,8 @@ def add_trend(df_stock_price):
         #target_raw = (df_stock_price['adj_close'].shift(-i) / df_stock_price['adj_close']) - 1
         if(config.OPEN_CLOSE == True):
             target_raw = close.shift(-i) - open.shift(-i)
+            target_raw[target_raw > 0] = int(1)
+            target_raw[target_raw <= 0] = int(0)
         else:
             #target_raw = close.shift(-i) - close
             target_raw = delta.shift(i)

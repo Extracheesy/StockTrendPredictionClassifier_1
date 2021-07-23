@@ -16,6 +16,7 @@ RESULTS_DIR = TRACES_DIR + "results/"
 FEATURE_DIRECTORY = TRACES_DIR + "feature/"
 STOCKS_DIRECTORY = './Data/Stocks/'
 STOCKS_DJI_DIRECTORY = './Data/Stocks_dji/'
+LEARNING_CURVES_DIRECTORY = TRACES_DIR + "learning_curves/"
 
 STOP_LOSS = -1.0
 #STOP_LOSS_ACTIVE = False
@@ -23,8 +24,8 @@ STOP_LOSS_ACTIVE = True
 
 ACTIVE_TIC = ''
 
-#OPEN_CLOSE = True
-OPEN_CLOSE = False
+OPEN_CLOSE = True
+#OPEN_CLOSE = False
 #ADD_LAGS = 'adj_close'
 #ADD_LAGS = 'trend'
 ADD_LAGS = 'target_day+1'
@@ -34,12 +35,15 @@ DROP_LAGS = False
 #DROP_LAGS = False
 MIN_FEATURE = 3
 
-BALANCE_DATASET = True
-#BALANCE_DATASET = False
+#BALANCE_DATASET = True
+BALANCE_DATASET = False
 #SMOTE = True
 SMOTE = True
 ADASYN = False
 #ADASYN = False
+
+MODEL_EVAL = True
+SAVE_FIGURE = True
 
 #CORR_MATRIX = True
 CORR_MATRIX = False
@@ -83,6 +87,9 @@ PREDICT_TEST_SET_WITH_PARAM = True
 
 COMPUTE_RESULT = True
 #COMPUTE_RESULT = False
+
+#COMPUTE_DASHBOARD = True
+COMPUTE_DASHBOARD = False
 
 PREDICT_GRID_SEARCH = False
 
@@ -200,3 +207,16 @@ LIST_COLUMNS_RESULTS = ['tic',
                         'gain_10_percent',
                         'gain_15_percent'
                         ]
+
+LIST_COLUMNS_RESULTS_DASHBOARD = ['tic',
+                                  'day',
+                                  'strategy',
+                                  'win',
+                                  'hold',
+                                  'lost',
+                                  'close',
+                                  'trend',
+                                  'pred',
+                                  'dayly_gain',
+                                  'cumulative_gain'
+                                  ]

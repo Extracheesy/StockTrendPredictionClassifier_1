@@ -13,6 +13,7 @@ def plot_seasonal(df, tic, OUT_DIR):
 
     filename = OUT_DIR + tic + "_decompose.png"
     plt.savefig(filename, dpi=500)
+    plt.close('all')
 
 def plot_close(df, tic, OUT_DIR):
     fig = plt.figure()
@@ -23,6 +24,7 @@ def plot_close(df, tic, OUT_DIR):
 
     filename = OUT_DIR + tic + "_close.png"
     plt.savefig(filename, dpi=500)
+    plt.close('all')
 
 def plot_df(df, X, Y, filename):
     fig = plt.figure()
@@ -33,6 +35,7 @@ def plot_df(df, X, Y, filename):
     plt.grid(True)
 
     plt.savefig(filename, dpi=500)
+    plt.close('all')
 
 def plot_avg_price_month(df, tic, OUT_DIR):
     # Compute the average price for each month

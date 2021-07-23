@@ -31,7 +31,7 @@ from predict import predict_tuning_param
 from predict import predict_test_set_with_tuned_param
 from compute_results import compute_df_results
 from compute_results import read_csv_results
-from dataset import balance_df_dataset
+from compute_dashboard import compute_df_dasboard
 
 from warnings import simplefilter
 simplefilter(action='ignore', category=FutureWarning)
@@ -149,4 +149,5 @@ for tic in LIST_TICKER_DJI['Symbol']:
         filename = config.RESULTS_DIR + "global_final_result.csv"
         df_results.to_csv(filename)
 
-
+    if(config.COMPUTE_DASHBOARD == True):
+        df_dashboard_tmp = compute_df_dasboard(df_prediction, df_raw_data, tic, OUT_DIR)

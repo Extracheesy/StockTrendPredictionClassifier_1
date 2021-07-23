@@ -133,7 +133,7 @@ def compute_df_results(df_prediction, df_raw_data,tic, OUT_DIR):
         yesterday_trend_pos = lst_column[len(lst_column) - 2]
         up_win, hold, down_lost = get_strategy_results(df_transposed[pred_pos], df_transposed[test_pos])
 
-        df_raw_data_filtered = df_raw_data[pred_day -1: pred_day + config.H -1]
+        df_raw_data_filtered = df_raw_data[pred_day +1: pred_day + config.H +1]
         data_accuracy = compute_dataset_pred_accuracy(df_transposed[test_pos], df_raw_data_filtered)
         print("data set / pred accuracy: ", data_accuracy)
         sum_close_day, gain_7_percent, gain_10_percent, gain_15_percent = get_gross_return(df_transposed[pred_pos], df_raw_data_filtered)
@@ -155,8 +155,9 @@ def compute_df_results(df_prediction, df_raw_data,tic, OUT_DIR):
 
         merged = df_transposed[pred_pos].copy()
 
-        for j in range(1, len(lst_column) - 2, 1):
-            merged = merge_pred_column(merged, df_transposed[lst_column[j]])
+        for j in range(0, len(lst_column) - 2, 1):
+            #merged = merge_pred_column(merged, df_transposed[lst_column[j]])
+            merged = df_transposed[lst_column[j]].copy()
             up_win, hold, down_lost = get_strategy_results(merged, df_transposed[test_pos])
 
             sum_close_day, gain_7_percent, gain_10_percent, gain_15_percent = get_gross_return(merged, df_raw_data_filtered)
@@ -177,8 +178,8 @@ def compute_df_results(df_prediction, df_raw_data,tic, OUT_DIR):
             df_results = addRow(df_results, new_row_lst)
 
         df_raw_data_filtered = df_raw_data[pred_day -1: pred_day + config.H -1]
-        data_accuracy = compute_dataset_pred_accuracy(df_transposed[yesterday_trend_pos], df_raw_data_filtered)
-        print("Yesterday data set / pred accuracy: ", data_accuracy)
+        #data_accuracy = compute_dataset_pred_accuracy(df_transposed[yesterday_trend_pos], df_raw_data_filtered)
+        #print("Yesterday data set / pred accuracy: ", data_accuracy)
 
         up_win, hold, down_lost = get_strategy_results(df_transposed[yesterday_trend_pos], df_transposed[test_pos])
         sum_close_day, gain_7_percent, gain_10_percent, gain_15_percent = get_gross_return(df_transposed[yesterday_trend_pos], df_raw_data_filtered)

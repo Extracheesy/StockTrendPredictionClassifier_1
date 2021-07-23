@@ -21,8 +21,8 @@ from sklearn.metrics import recall_score
 from sklearn.metrics import f1_score
 from sklearn.metrics import precision_score
 
-
-
+from matplotlib import pyplot
+from pathlib import Path
 from dataset import balance_df_dataset
 
 def get_rmse(a, b):
@@ -242,20 +242,76 @@ def train_pred_eval_model(X_train,
         est                : predicted values. Same length as y_test
     '''
 
-    model = XGBClassifier(objective='binary:logistic',
-                          verbosity=0,
-                          seed=config.MODEL_SEED,
-                          n_estimators=int(n_estimators),
-                          max_depth=int(max_depth),
-                          learning_rate=learning_rate,
-                          min_child_weight=min_child_weight,
-                          subsample=subsample,
-                          colsample_bytree=colsample_bytree,
-                          colsample_bylevel=colsample_bylevel,
-                          gamma=gamma)
+    if(config.MODEL_EVAL == True):
+        if (os.path.isdir(config.LEARNING_CURVES_DIRECTORY) == False):
+            print("new traces directory: ", config.LEARNING_CURVES_DIRECTORY)
+            os.mkdir(config.LEARNING_CURVES_DIRECTORY)
 
-    # Train the model
-    model.fit(X_train, y_train)
+        model = XGBClassifier(objective='binary:logistic',
+                              eta=0.05,
+                              verbosity=0,
+                              seed=config.MODEL_SEED,
+                              n_estimators=int(n_estimators),
+                              max_depth=int(max_depth),
+                              learning_rate=learning_rate,
+                              min_child_weight=min_child_weight,
+                              subsample=subsample,
+                              colsample_bytree=colsample_bytree,
+                              colsample_bylevel=colsample_bylevel,
+                              gamma=gamma)
+
+        # define the datasets to evaluate each iteration
+        evalset = [(X_train, y_train), (X_test, y_test)]
+
+        # fit the model
+        model.fit(X_train, y_train, eval_metric='logloss', eval_set=evalset)
+
+        # evaluate performance
+        yhat = model.predict(X_test)
+        score = accuracy_score(y_test, yhat)
+        print('Accuracy: %.3f' % score)
+
+        # retrieve performance metrics
+        results = model.evals_result()
+
+        pyplot.close('all')
+
+        # plot learning curves
+        pyplot.plot(results['validation_0']['logloss'], label='train')
+        pyplot.plot(results['validation_1']['logloss'], label='test')
+        # show the legend
+        pyplot.legend()
+
+        score = round(score * 100,0)
+        cpt = 0
+        if config.SAVE_FIGURE == True:
+            filename = config.LEARNING_CURVES_DIRECTORY + config.ACTIVE_TIC + '_' + str(score) + '_learning_curves_' + str(cpt) + '.png'
+            my_file = Path(filename)
+            while (my_file.is_file() == True):
+                cpt = cpt + 1
+                filename = config.LEARNING_CURVES_DIRECTORY + config.ACTIVE_TIC + '_' + str(score) + '_learning_curves_' + str(cpt) + '.png'
+                my_file = Path(filename)
+            pyplot.savefig(filename)
+            pyplot.figure(True)
+        else:
+            # show the plot
+            pyplot.show()
+
+    else:
+        model = XGBClassifier(objective='binary:logistic',
+                              verbosity=0,
+                              seed=config.MODEL_SEED,
+                              n_estimators=int(n_estimators),
+                              max_depth=int(max_depth),
+                              learning_rate=learning_rate,
+                              min_child_weight=min_child_weight,
+                              subsample=subsample,
+                              colsample_bytree=colsample_bytree,
+                              colsample_bylevel=colsample_bylevel,
+                              gamma=gamma)
+
+        # Train the model
+        model.fit(X_train, y_train)
 
     # Get predicted labels and scale back to original range
     est = pred_xgboost(model, X_test)
@@ -317,6 +373,9 @@ def get_error_metrics_one_pred(df,
 
     # Drop the NaNs in train
     train.dropna(axis=0, how='any', inplace=True)
+
+    if (config.BALANCE_DATASET == True):
+        train = balance_df_dataset(train, 'target')
 
     # Split into X and y
     X = train[features]

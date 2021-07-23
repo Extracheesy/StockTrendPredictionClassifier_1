@@ -166,24 +166,24 @@ def drop_unused_df_feature(df):
     df = df.drop('dayofweek', axis=1)
     df = df.drop('dayofyear', axis=1)
 
-    df = df.drop('open', axis=1)
-    df = df.drop('close', axis=1)
-    df = df.drop('low', axis=1)
-    df = df.drop('high', axis=1)
-    df = df.drop('adj_close', axis=1)
-    df = df.drop('volume', axis=1)
+    if (config.DROP_LAGS == True):
+        df = df.drop('open', axis=1)
+        df = df.drop('close', axis=1)
+        df = df.drop('low', axis=1)
+        df = df.drop('high', axis=1)
+        df = df.drop('adj_close', axis=1)
+        df = df.drop('volume', axis=1)
 
     df = df.drop('date', axis=1)
 
-    #if (config.PREDICT_TARGET != 'target_day+1'):
-    #    df = df.drop('target_day+1' axis=1)
+    df = df.drop('target_day+1_lag_1', axis=1)
 
     for i in range(2,config.H + 1,1):
         df = df.drop('target_day+' + str(i), axis=1)
 
-    #if (config.DROP_LAGS == True):
-    #    for i in range(1, config.N + 1, 1):
-    #        df = df.drop('trend_lag_' + str(i), axis=1)
+    if (config.DROP_LAGS == True):
+        for i in range(1, config.N + 1, 1):
+            df = df.drop('trend_lag_' + str(i), axis=1)
 
     #df.to_csv("test_df_full_data_after_drop.csv")
 
